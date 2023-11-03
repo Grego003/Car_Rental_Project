@@ -75,11 +75,12 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
+                            // login with email and password
                             LaunchedEffect(key1 = state.isSignInSuccessful) {
                                 if(state.isSignInSuccessful) {
                                     Toast.makeText(
                                         applicationContext,
-                                        "Sign in Successful",
+                                        R.string.Sign_in_Successful,
                                         Toast.LENGTH_LONG
                                     ).show()
 
@@ -87,7 +88,6 @@ class MainActivity : ComponentActivity() {
                                     viewModel.resetState()
                                 }
                             }
-
                             LoginScreen(
                                 viewModel = viewModel,
                                 state = state,
@@ -140,7 +140,7 @@ class MainActivity : ComponentActivity() {
                                 if(state.isSignInSuccessful) {
                                     Toast.makeText(
                                         applicationContext,
-                                        "Sign in Successful",
+                                        R.string.Sign_in_Successful,
                                         Toast.LENGTH_LONG
                                     ).show()
 
@@ -186,7 +186,7 @@ class MainActivity : ComponentActivity() {
                                         googleAuthService.signOut()
                                         Toast.makeText(
                                             applicationContext,
-                                            "Signed Out",
+                                            R.string.Signed_Out,
                                             Toast.LENGTH_LONG
                                         ).show()
                                         navController.popBackStack()
