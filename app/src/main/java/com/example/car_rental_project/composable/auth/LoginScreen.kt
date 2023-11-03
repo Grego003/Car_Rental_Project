@@ -46,10 +46,11 @@ fun LoginScreen(
     {
         val context =  LocalContext.current
         LaunchedEffect(key1 = state.signInError) {
+            // login failed
             state.signInError?.let { error ->
                 Toast.makeText(
                     context,
-                    error,
+                    R.string.sign_in_error,
                     Toast.LENGTH_LONG
                 ).show()
             }
