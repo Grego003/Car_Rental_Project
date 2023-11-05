@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.car_rental_project.composable.auth.LoginScreen
 import com.example.car_rental_project.composable.auth.RegisterScreen
 import com.example.car_rental_project.composable.home.HomeScreen
+import com.example.car_rental_project.model.CarModel
 import com.example.car_rental_project.service.GoogleAuthService
 import com.example.car_rental_project.ui.theme.Car_Rental_ProjectTheme
 import com.example.car_rental_project.view_model.SignInViewModel
@@ -42,6 +43,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Car_Rental_ProjectTheme {
+
+                val carList = listOf(
+                    CarModel("1", "Toyota", "Corolla", "$10,000", R.drawable.placeholder_logo),
+                    CarModel("2", "Honda", "Civic", "$9,500", R.drawable.placeholder_logo),
+                    CarModel("3", "Ford", "Mustang", "$20,000", R.drawable.placeholder_logo),
+                    CarModel("4", "Honda", "Brio", "$4,000", R.drawable.placeholder_logo),
+                    CarModel("5", "Audi", "I8", "$34,000", R.drawable.placeholder_logo),
+                    )
+
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -191,7 +201,8 @@ class MainActivity : ComponentActivity() {
                                         ).show()
                                         navController.popBackStack()
                                     }
-                                }
+                                },
+                                carList = carList
                             )
                         }
             }
