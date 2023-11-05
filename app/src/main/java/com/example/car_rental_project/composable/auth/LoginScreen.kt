@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.example.car_rental_project.R
 import com.example.car_rental_project.state.AuthState
 import com.example.car_rental_project.view_model.SignInViewModel
+import androidx.compose.ui.text.font.FontFamily
 
 @Composable
 fun LoginScreen(
@@ -105,9 +106,11 @@ fun LoginHeader(modifier: Modifier = Modifier, onToCreateAccountScreen: () -> Un
 @Composable
 fun LoginHeaderLogo(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.logo_autohub),
+        painter = painterResource(id = R.drawable.autohubicon),
         contentDescription = stringResource(id = R.string.login_header_logo),
-        modifier = modifier.size(100.dp)
+        modifier = modifier
+            .size(110.dp)
+            .padding(top = 16.dp)
     )
 }
 
