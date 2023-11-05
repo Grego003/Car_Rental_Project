@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.util.Log
+import androidx.core.content.ContextCompat.getString
 import com.example.car_rental_project.R
 import com.example.car_rental_project.model.AuthModel
 import com.example.car_rental_project.model.UserModel
@@ -66,7 +67,7 @@ class GoogleAuthService(
                 return AuthModel(data = null, errorMessage = e.message)
             }
         } else {
-            return AuthModel(data = null, errorMessage = "Email, password, and username must not be null")
+            return AuthModel(data = null, errorMessage = getString(context, R.string.sign_up_Empty))
         }
     }
 
@@ -91,7 +92,7 @@ class GoogleAuthService(
                 return AuthModel(data = null, errorMessage = e.message)
             }
         } else {
-            return AuthModel(data = null, errorMessage = "Email and password must not be null")
+            return AuthModel(data = null, errorMessage = getString(context, R.string.sign_in_Empty))
         }
     }
 

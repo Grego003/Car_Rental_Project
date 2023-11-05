@@ -106,9 +106,11 @@ fun RegisterHeader(modifier: Modifier = Modifier, onToLoginScreen: () -> Unit) {
 @Composable
 fun RegisterHeaderLogo(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.logo_autohub),
+        painter = painterResource(id = R.drawable.autohubicon),
         contentDescription = stringResource(id = R.string.login_header_logo),
-        modifier = modifier.size(100.dp)
+        modifier = modifier
+            .size(110.dp)
+            .padding(top = 16.dp)
     )
 }
 
