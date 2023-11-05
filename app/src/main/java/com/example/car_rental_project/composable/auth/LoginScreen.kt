@@ -25,12 +25,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.car_rental_project.R
 import com.example.car_rental_project.state.AuthState
 import com.example.car_rental_project.view_model.SignInViewModel
@@ -63,8 +64,8 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .then(Modifier.padding(32.dp, 32.dp)),
-            verticalArrangement = Arrangement.spacedBy(32.dp),
+                .then(Modifier.padding(32.dp, 16.dp)),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LoginHeaderLogo()
@@ -85,13 +86,13 @@ fun LoginScreen(
 @Composable
 fun LoginHeader(modifier: Modifier = Modifier, onToCreateAccountScreen: () -> Unit) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(0.dp, 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.Start,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = stringResource(id = R.string.login),
-            style = MaterialTheme.typography.displayMedium,
+            style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
         )
         Text(
             text = stringResource(id = R.string.sign_in_to_continue),
@@ -104,17 +105,24 @@ fun LoginHeader(modifier: Modifier = Modifier, onToCreateAccountScreen: () -> Un
 @Composable
 fun LoginHeaderLogo(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.placeholder_logo),
+        painter = painterResource(id = R.drawable.logo_autohub),
         contentDescription = stringResource(id = R.string.login_header_logo),
-        modifier = modifier.size(200.dp)
+        modifier = modifier.size(100.dp)
     )
 }
 
 @Composable
 fun RegisterLink(modifier: Modifier = Modifier, onToCreateAccountScreen: () -> Unit) {
+    val text = stringResource(id = R.string.sign_up_here)
+    val annotatedString = buildAnnotatedString {
+        withStyle(style = SpanStyle(color = Color.Blue)) {
+            append(text)
+        }
+    }
+
     ClickableText(
-        text = AnnotatedString(stringResource(id = R.string.sign_up_here)),
-        style = MaterialTheme.typography.labelSmall,
+        text = annotatedString,
+        style = MaterialTheme.typography.labelMedium,
         modifier = modifier,
         onClick = {onToCreateAccountScreen.invoke() }
     )
@@ -175,20 +183,19 @@ fun LoginForm(
             onPasswordChange,
             modifier.fillMaxWidth()
         )
-        SubmitButton(modifier = modifier, onLoginClick)
+        SubmitButton(onLoginClick)
     }
 }
 
 @Composable
-fun SubmitButton(modifier: Modifier = Modifier, onLoginClick : () -> Unit) {
+fun SubmitButton(onLoginClick: () -> Unit) {
     Button(
         onClick = { onLoginClick.invoke() },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text(stringResource(id = R.string.sign_in))
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

@@ -2,23 +2,19 @@
     <string name="app_name">Car_Rental_Project</string>
     <string name="login">Login</string>
     <string name="sign_in">Sign in</string>
-    <string name="sign_in_error">Email or Password is incorrect</string>
-    <string name="sign_in_Empty">Email and password must not be Empty</string>
-    <string name="sign_up_here">sign up here</string>
-    <string name="sign_up_Empty">Email, password, and username must not be Empty</string>
-    <string name="sign_in_to_continue">sign in to continue</string>
+    <string name="sign_up_here">Don\'t have an account yet? Sign up here</string>
+    <string name="sign_in_to_continue">Sign in to continue</string>
     <string name="login_header_logo">login header logo</string>
-    <string name="sign_in_with_google">sign in with google</string>
+    <string name="sign_in_with_google">Sign in with google</string>
     <string name="google_logo">google logo</string>
 
     <string name="create_your_account">Create your account</string>
     <string name="register">Register</string>
     <string name="sign_up">Sign up</string>
-    <string name="Already_have_an_account">Already have an account?, sign in now</string>
+    <string name="Already_have_an_account">Already have an account? Sign in now</string>
+    <string name="or_sign_in_with">Or sign in with</string>
 
-    <string name="Sign_in_Successful">Sign in Successful</string>
-    <string name="Sign_in_UnSuccessful">Sign in Unsuccessful</string>
-    <string name="Signed_Out">Signed Out</string>
+    <string name="car_list_description">Car Item</string>
 
     <string name="web_client_id">16950542463-vsu3i34qcbq3b77raoj094la41l79svh.apps.googleusercontent.com</string>
 </resources>
