@@ -3,12 +3,14 @@ package com.example.car_rental_project.composable.auth
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.*
 import androidx.compose.material3.Button
@@ -17,6 +19,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,7 +28,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -54,8 +63,8 @@ fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .then(Modifier.padding(32.dp, 32.dp)),
-        verticalArrangement = Arrangement.spacedBy(28.dp),
+            .then(Modifier.padding(32.dp, 16.dp)),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         RegisterHeaderLogo()
@@ -76,15 +85,15 @@ fun RegisterScreen(
 }
 
 @Composable
-fun RegisterHeader(modifier: Modifier = Modifier, onToLoginScreen : () -> Unit) {
+fun RegisterHeader(modifier: Modifier = Modifier, onToLoginScreen: () -> Unit) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(0.dp, 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.Start,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = stringResource(id = R.string.register),
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
         )
         Text(
             text = stringResource(id = R.string.create_your_account),
@@ -97,21 +106,10 @@ fun RegisterHeader(modifier: Modifier = Modifier, onToLoginScreen : () -> Unit) 
 @Composable
 fun RegisterHeaderLogo(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.placeholder_logo),
+        painter = painterResource(id = R.drawable.logo_autohub),
         contentDescription = stringResource(id = R.string.login_header_logo),
         modifier = modifier.size(100.dp)
     )
-}
-
-@Composable
-fun LoginLink(modifier: Modifier = Modifier, onToLoginScreen: () -> Unit) {
-    ClickableText(
-        text = AnnotatedString(stringResource(id = R.string.Already_have_an_account)),
-        style = MaterialTheme.typography.labelSmall,
-        modifier = modifier,
-        onClick = { onToLoginScreen.invoke() }
-    )
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -152,22 +150,42 @@ fun RegisterUsernameTextInput(
     onUsernameChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = lightColorScheme()
+
     TextField(
-        modifier = modifier,
         value = username.orEmpty(),
         onValueChange = { onUsernameChange(it) },
+        textStyle = TextStyle(color = colors.primary),
+        modifier = modifier.background(colors.background),
         label = { Text(text = "Username") },
-    )
+        )
 }
 
 @Composable
-fun RegisterButton(modifier: Modifier = Modifier, onRegisterClick: () -> Unit) {
+fun RegisterButton(onRegisterClick: () -> Unit) {
     Button(
         onClick = { onRegisterClick.invoke() },
-        modifier = modifier,
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Text(stringResource(id = R.string.sign_up))
     }
+}
+
+@Composable
+fun LoginLink(modifier: Modifier = Modifier, onToLoginScreen: () -> Unit) {
+    val text = stringResource(id = R.string.Already_have_an_account)
+    val annotatedString = buildAnnotatedString {
+        withStyle(style = SpanStyle(color = Color.Blue)) {
+            append(text)
+        }
+    }
+
+    ClickableText(
+        text = annotatedString,
+        style = MaterialTheme.typography.labelSmall,
+        modifier = modifier,
+        onClick = { onToLoginScreen.invoke() }
+    )
 }
 
 
@@ -202,7 +220,7 @@ fun RegisterForm(
             onPasswordChange,
             modifier.fillMaxWidth()
         )
-        RegisterButton(modifier = modifier, onRegisterClick)
+        RegisterButton(onRegisterClick)
     }
 }
 
