@@ -3,6 +3,7 @@ package com.example.car_rental_project.service
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.util.Log
 import androidx.core.content.ContextCompat.getString
 import com.example.car_rental_project.R
 import com.example.car_rental_project.model.UserModel
@@ -114,6 +115,7 @@ class GoogleAuthService(
         if (currentUser != null) {
             try {
                 val userSnapshot = userDatabase.child(currentUser.uid).get().await()
+                Log.d("USERSNAPSHOT", userSnapshot.toString())
                 if (userSnapshot.exists()) {
                     return userSnapshot.getValue<UserEntity>()
                 }
@@ -144,7 +146,7 @@ class GoogleAuthService(
                     profilePicture = user.photoUrl?.toString(),
                     isVerified = false,
                 )
-                userDatabase.child("users").child(user.uid).setValue(userData)
+                userDatabase.child(user.uid).setValue(userData)
                 return UserModel(
                     data = userData,
                     errorMessage = null
