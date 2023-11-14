@@ -1,7 +1,7 @@
 package com.example.car_rental_project.view_model
 
 import androidx.lifecycle.ViewModel
-import com.example.car_rental_project.model.AuthModel
+import com.example.car_rental_project.model.UserModel
 import com.example.car_rental_project.state.AuthState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +13,7 @@ class SignInViewModel : ViewModel() {
     //Read Only state
     val state = _state.asStateFlow()
 
-    fun onSignInResult(result : AuthModel) {
+    fun onSignInResult(result : UserModel) {
         _state.update { it.copy(
             isSignInSuccessful = result.data != null,
             signInError = result.errorMessage

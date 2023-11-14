@@ -77,7 +77,6 @@ fun RegisterScreen(
             onEmailChange = { newEmail -> viewModel.onEmailChange(newEmail) },
             onPasswordChange = { newPassword -> viewModel.onPasswordChange(newPassword) },
             onUsernameChange = {newUsername -> viewModel.onUsernameChange(newUsername)}
-
         )
         Divider(color = Color.LightGray, thickness = 2.dp)
         LoginByGoogleButton(Modifier, onSignUpClickWithGoogleTapiIn)
@@ -117,7 +116,7 @@ fun RegisterHeaderLogo(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterEmailTextInput(
-    email: String ?,
+    email: String?,
     onEmailChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {

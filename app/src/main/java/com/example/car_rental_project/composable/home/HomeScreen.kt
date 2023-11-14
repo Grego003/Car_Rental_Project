@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -20,10 +21,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,17 +33,16 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.car_rental_project.R
 import com.example.car_rental_project.model.CarModel
-import com.example.car_rental_project.model.UserModel
+import com.example.car_rental_project.model.UserEntity
 
 //Todo Rapihin ama buat design nya (dipecah pecah kaya login)
 @Composable
 fun HomeScreen(
-    userData : UserModel?,
+    userData : UserEntity?,
     onSignOut : () -> Unit,
     carList: List<CarModel>,
-
+    navigateToCreateCarPost : () -> Unit,
 ) {
-
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -69,7 +65,7 @@ fun HomeScreen(
                 style = MaterialTheme.typography.titleLarge
             )
             AsyncImage(
-                model = userData?.profilePicture,
+                model = userData?.profilePicture?.let { if (it.isEmpty()) null else it } ,
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(40.dp)
@@ -97,6 +93,12 @@ fun HomeScreen(
                 items(rightColumn) { car -> CarCard(car) }
             }
         }
+
+        Button(
+            modifier = Modifier.padding(8.dp),
+            onClick = { navigateToCreateCarPost() }) {
+            Text("Navigate to Create Car Post")
+        }
     }
 }
 
@@ -114,8 +116,8 @@ fun CarCard(car: CarModel) {
             .background(MaterialTheme.colorScheme.background)
             .clickable {}
     ) {
-        Image(
-            painter = painterResource(id = car.imageResource),
+        AsyncImage(
+            model = car.images?.firstOrNull() ?: R.drawable.ic_launcher_background,
             contentDescription = stringResource(id = R.string.car_list_description),
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -126,7 +128,7 @@ fun CarCard(car: CarModel) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "${car.brand} ${car.model}",
+            text = "${car.title}",
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
@@ -134,7 +136,7 @@ fun CarCard(car: CarModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = car.price,
+            text = "${car.price}",
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
@@ -145,19 +147,23 @@ fun CarCard(car: CarModel) {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenReview() {
-    val dummyUserData = UserModel(
+    val dummyUserData = UserEntity(
         userId = "001192394dua30",
+        email = "John@gmail.com",
         username = "John",
-        profilePicture = null
+        profilePicture = "",
+        phoneNumber = "",
+        isVerified = false,
     )
 
     val carList = listOf(
-        CarModel("1", "Toyota", "Corolla", "$10,000", R.drawable.placeholder_logo),
-        CarModel("2", "Honda", "Civic", "$9,500", R.drawable.placeholder_logo),
-        CarModel("3", "Ford", "Mustang", "$20,000", R.drawable.placeholder_logo),
-        CarModel("4", "Honda", "Brio", "$4,000", R.drawable.placeholder_logo),
-        CarModel("5", "Audi", "I8", "$34,000", R.drawable.placeholder_logo),
-        )
+        CarModel("1", "Toyota", "Corolla", "$10,000"),
+        CarModel("2", "Honda", "Civic", "$9,500"),
+        CarModel("3", "Ford", "Mustang", "$20,000"),
+        CarModel("4", "Honda", "Brio", "$4,000"),
+        CarModel("5", "Audi", "I8", "$34,000"),
+    )
 
-    HomeScreen(dummyUserData, onSignOut = {}, carList)
+
+    HomeScreen(dummyUserData, onSignOut = {}, carList, {})
 }

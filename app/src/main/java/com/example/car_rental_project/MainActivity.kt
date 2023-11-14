@@ -9,11 +9,20 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,44 +31,68 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.car_rental_project.composable.auth.LoginScreen
 import com.example.car_rental_project.composable.auth.RegisterScreen
+import com.example.car_rental_project.composable.carpost.CreateCarPostScreen
 import com.example.car_rental_project.composable.home.HomeScreen
+import com.example.car_rental_project.model.CarCategory
+import com.example.car_rental_project.model.CarCondition
 import com.example.car_rental_project.model.CarModel
+import com.example.car_rental_project.model.EngineCapasity
+import com.example.car_rental_project.model.FuelType
+import com.example.car_rental_project.model.UserEntity
+import com.example.car_rental_project.repository.CarPostRepository
+import com.example.car_rental_project.service.FirebaseDBService
+import com.example.car_rental_project.service.FirebaseStorageService
 import com.example.car_rental_project.service.GoogleAuthService
+import com.example.car_rental_project.state.CarPostState
 import com.example.car_rental_project.ui.theme.Car_Rental_ProjectTheme
+import com.example.car_rental_project.view_model.CarViewModel
 import com.example.car_rental_project.view_model.SignInViewModel
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.firebase.Firebase
 import kotlinx.coroutines.launch
+import java.time.Year
 
 class MainActivity : ComponentActivity() {
-
     private val googleAuthService by lazy {
         GoogleAuthService(
             context = applicationContext,
-            oneTapClient = Identity.getSignInClient(applicationContext)
+            oneTapClient = Identity.getSignInClient(applicationContext),
+            firebaseService = FirebaseDBService
         )
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val carRepository = CarPostRepository(FirebaseDBService, FirebaseStorageService)
         setContent {
             Car_Rental_ProjectTheme {
-
                 val carList = listOf(
-                    CarModel("1", "Toyota", "Corolla", "$10,000", R.drawable.placeholder_logo),
-                    CarModel("2", "Honda", "Civic", "$9,500", R.drawable.placeholder_logo),
-                    CarModel("3", "Ford", "Mustang", "$20,000", R.drawable.placeholder_logo),
-                    CarModel("4", "Honda", "Brio", "$4,000", R.drawable.placeholder_logo),
-                    CarModel("5", "Audi", "I8", "$34,000", R.drawable.placeholder_logo),
-                    )
-
+                    CarModel(
+                        title = "Toyota Corolla",
+                        brand = "Toyota",
+                        model = "Corolla",
+                        condition = CarCondition.BEKAS,
+                        yearBought = Year.of(2019).toString(),
+                        fuelType = FuelType.BENSIN,
+                        odometer = 30000,
+                        category = CarCategory.SEDAN,
+                        engineCapasity = EngineCapasity.CC_1500_TO_2000,
+                        description = "A reliable sedan with low mileage.",
+                        price = 12000,
+                        legalRequirements = true
+                    ),
+                )
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 )
                 {
-                    val viewModel = viewModel<SignInViewModel>()
-                    val state by viewModel.state.collectAsStateWithLifecycle()
+                    val authViewModel = viewModel<SignInViewModel>()
+                    val carViewModel = viewModel<CarViewModel>()
+
+                    var userData by remember { mutableStateOf<UserEntity?>(null) }
+                    var carData by remember { mutableStateOf<List<CarModel>?>(null) }
+                    val authState by authViewModel.state.collectAsStateWithLifecycle()
                     val navController = rememberNavController()
 
                     NavHost(navController, startDestination = "login") {
@@ -77,7 +110,7 @@ class MainActivity : ComponentActivity() {
                                             val signInResult = googleAuthService.signInWithIntent(
                                                 intent = result.data ?: return@launch
                                             )
-                                            viewModel.onSignInResult(signInResult)
+                                            authViewModel.onSignInResult(signInResult)
                                         }
                                     }
                                     else {
@@ -86,21 +119,20 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             // login with email and password
-                            LaunchedEffect(key1 = state.isSignInSuccessful) {
-                                if(state.isSignInSuccessful) {
+                            LaunchedEffect(key1 = authState.isSignInSuccessful) {
+                                if(authState.isSignInSuccessful) {
+                                    navController.navigate("home")
+                                    authViewModel.resetState()
                                     Toast.makeText(
                                         applicationContext,
                                         R.string.Sign_in_Successful,
                                         Toast.LENGTH_LONG
                                     ).show()
-
-                                    navController.navigate("home")
-                                    viewModel.resetState()
                                 }
                             }
                             LoginScreen(
-                                viewModel = viewModel,
-                                state = state,
+                                viewModel = authViewModel,
+                                state = authState,
                                 onSignInClickWithGoogleTapiIn = {
                                     lifecycleScope.launch {
                                         val signInIntentSender = googleAuthService.signInWithGoogleOneTapClient()
@@ -114,12 +146,12 @@ class MainActivity : ComponentActivity() {
                                 onSignInClickWithEmail = { email, password ->
                                         lifecycleScope.launch {
                                             val signInResult = googleAuthService.signInUserWithEmailAndPassword(email, password)
-                                            viewModel.onSignInResult(signInResult)
+                                            authViewModel.onSignInResult(signInResult)
                                         }
                                 },
                                 onToCreateAccountScreen = {
                                     navController.navigate("register")
-                                    viewModel.resetState()
+                                    authViewModel.resetState()
                                 }
 
                             )
@@ -138,7 +170,7 @@ class MainActivity : ComponentActivity() {
                                             val signInResult = googleAuthService.signInWithIntent(
                                                 intent = result.data ?: return@launch
                                             )
-                                            viewModel.onSignInResult(signInResult)
+                                            authViewModel.onSignInResult(signInResult)
                                         }
                                     }
                                     else {
@@ -146,8 +178,8 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             )
-                            LaunchedEffect(key1 = state.isSignInSuccessful) {
-                                if(state.isSignInSuccessful) {
+                            LaunchedEffect(key1 = authState.isSignInSuccessful) {
+                                if(authState.isSignInSuccessful) {
                                     Toast.makeText(
                                         applicationContext,
                                         R.string.Sign_in_Successful,
@@ -155,13 +187,13 @@ class MainActivity : ComponentActivity() {
                                     ).show()
 
                                     navController.navigate("home")
-                                    viewModel.resetState()
+                                    authViewModel.resetState()
                                 }
                             }
 
                             RegisterScreen(
-                                viewModel = viewModel,
-                                state = state,
+                                viewModel = authViewModel,
+                                state = authState,
                                 onSignUpClickWithGoogleTapiIn = {
                                     lifecycleScope.launch {
                                         val signInIntentSender = googleAuthService.signInWithGoogleOneTapClient()
@@ -178,19 +210,28 @@ class MainActivity : ComponentActivity() {
                                             username = username,
                                             email = email,
                                             password = password)
-                                        viewModel.onSignInResult(signInResult)
+                                        authViewModel.onSignInResult(signInResult)
                                     }
                                 },
                                 onToLoginScreen = {
                                     navController.navigate("login")
-                                    viewModel.resetState()
+                                    authViewModel.resetState()
                                 }
 
                             )
                         }
                         composable("home") {
+
+                            LaunchedEffect(Unit) {
+                                userData = googleAuthService.getSignedInUser()
+                                carRepository.getAllCarPosts().collect { carList ->
+                                    carData = carList
+                                    // Perform any additional operations with the data if needed
+                                }
+                            }
+
                             HomeScreen(
-                                userData = googleAuthService.getSignedInUser(),
+                                userData = userData,
                                 onSignOut = {
                                     lifecycleScope.launch {
                                         googleAuthService.signOut()
@@ -202,7 +243,64 @@ class MainActivity : ComponentActivity() {
                                         navController.popBackStack()
                                     }
                                 },
-                                carList = carList
+                                carList = carData ?: emptyList(),
+                                navigateToCreateCarPost = {
+                                    navController.navigate("createCarPost")
+                                }
+                            )
+
+                        }
+                        composable("createCarPost") {
+
+                            val carPostState by carViewModel.state.collectAsStateWithLifecycle()
+
+                            LaunchedEffect(key1 = carPostState.isCreatePostSuccessful) {
+                                if(carPostState.isCreatePostSuccessful) {
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Car Successfully created",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    navController.navigate("home")
+                                    carViewModel.resetState()
+                                }
+                                else {
+                                    Toast.makeText(
+                                        applicationContext,
+                                        carPostState.errorMessage,
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+
+                            CreateCarPostScreen(
+                                state = carPostState,
+                                carViewModel = carViewModel,
+                                storeToDatabase = {
+                                    lifecycleScope.launch {
+                                        val carModel = CarModel(
+                                            title = "Toyota Corolla 2",
+                                            brand = "Toyota",
+                                            model = "Corolla",
+                                            condition = CarCondition.BEKAS,
+                                            yearBought = Year.of(2019).toString(),
+                                            fuelType = FuelType.BENSIN,
+                                            odometer = 30000,
+                                            category = CarCategory.SEDAN,
+                                            engineCapasity = EngineCapasity.CC_1500_TO_2000,
+                                            description = "A reliable sedan with low mileage.",
+                                            price = 12000,
+                                            legalRequirements = true
+                                        )
+                                        val createCarPostResult = carRepository.createCarPost(
+                                            userId = userData?.userId,
+                                            carModel = carModel,
+                                            images = carPostState.images ?: emptyList(),
+                                            contextResolver = contentResolver
+                                        )
+                                        carViewModel.onCreateResult(createCarPostResult)
+                                    }
+                                }
                             )
                         }
             }
