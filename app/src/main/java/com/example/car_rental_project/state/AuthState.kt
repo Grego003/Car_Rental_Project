@@ -5,5 +5,6 @@ data class AuthState(
     var password : String? = null,
     var username : String? = null,
     val isSignInSuccessful : Boolean = false,
+    val isLoading : Boolean = false,
     val signInError : String? = null,
 )

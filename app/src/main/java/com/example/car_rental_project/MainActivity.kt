@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import com.example.car_rental_project.composable.auth.LoginScreen
 import com.example.car_rental_project.composable.auth.RegisterScreen
 import com.example.car_rental_project.composable.carpost.CarPostDetailScreen
 import com.example.car_rental_project.composable.carpost.CreateCarPostScreen
+import com.example.car_rental_project.composable.extras.LoadingScreen
 import com.example.car_rental_project.composable.home.HomeScreen
 import com.example.car_rental_project.model.CarCategory
 import com.example.car_rental_project.model.CarCondition
@@ -78,16 +80,20 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
 
                     NavHost(navController, startDestination = "login") {
+
                         composable("login") {
+
                             LaunchedEffect(key1 = Unit) {
                                 if (googleAuthService.getSignedInUser() != null) {
                                     navController.navigate("home")
                                 }
                             }
+
                             val launcher = rememberLauncherForActivityResult(
                                 contract = ActivityResultContracts.StartIntentSenderForResult(),
                                 onResult = { result ->
                                     if (result.resultCode == RESULT_OK) {
+                                        authViewModel.onLoad()
                                         lifecycleScope.launch {
                                             val signInResult = googleAuthService.signInWithIntent(
                                                 intent = result.data ?: return@launch
@@ -100,15 +106,16 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             // login with email and password
-                            LaunchedEffect(key1 = authState.isSignInSuccessful) {
+                            DisposableEffect(authState.isSignInSuccessful) {
                                 if (authState.isSignInSuccessful) {
                                     navController.navigate("home")
-                                    authViewModel.resetState()
                                     Toast.makeText(
                                         applicationContext,
                                         R.string.Sign_in_Successful,
                                         Toast.LENGTH_LONG
                                     ).show()
+                                }
+                                onDispose {
                                 }
                             }
                             LoginScreen(
@@ -126,6 +133,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                                 onSignInClickWithEmail = { email, password ->
+                                    authViewModel.onLoad()
                                     lifecycleScope.launch {
                                         val signInResult =
                                             googleAuthService.signInUserWithEmailAndPassword(
@@ -139,7 +147,6 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("register")
                                     authViewModel.resetState()
                                 }
-
                             )
                         }
                         composable("register") {
@@ -164,6 +171,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             LaunchedEffect(key1 = authState.isSignInSuccessful) {
+                                authViewModel.onLoadFinished()
                                 if (authState.isSignInSuccessful) {
                                     Toast.makeText(
                                         applicationContext,
@@ -229,7 +237,8 @@ class MainActivity : ComponentActivity() {
                                             R.string.Signed_Out,
                                             Toast.LENGTH_LONG
                                         ).show()
-                                        navController.navigate("register")
+                                        authViewModel.resetState()
+                                        navController.navigate("login")
                                     }
                                 },
                                 carList = carsData ?: emptyList(),

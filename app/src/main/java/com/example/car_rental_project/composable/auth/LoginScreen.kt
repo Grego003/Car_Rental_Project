@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
@@ -36,6 +37,7 @@ import com.example.car_rental_project.R
 import com.example.car_rental_project.state.AuthState
 import com.example.car_rental_project.view_model.SignInViewModel
 import androidx.compose.ui.text.font.FontFamily
+import com.example.car_rental_project.composable.extras.LoadingScreen
 
 @Composable
 fun LoginScreen(
@@ -45,6 +47,7 @@ fun LoginScreen(
     onSignInClickWithEmail: (email : String?, password : String?) -> Unit,
     onToCreateAccountScreen : ()->Unit,
     )
+
     {
         val context =  LocalContext.current
         LaunchedEffect(key1 = state.signInError) {
@@ -57,6 +60,8 @@ fun LoginScreen(
                 ).show()
             }
         }
+
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -69,17 +74,23 @@ fun LoginScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LoginHeaderLogo()
-            LoginHeader(Modifier, onToCreateAccountScreen)
-            LoginForm(
-                onLoginClick = { onSignInClickWithEmail(state.email, state.password) },
-                email = state.email,
-                password = state.password,
-                onEmailChange = { newEmail -> viewModel.onEmailChange(newEmail) },
-                onPasswordChange = { newPassword -> viewModel.onPasswordChange(newPassword) }
-            )
-            Divider(color = Color.LightGray, thickness = 2.dp)
-            LoginByGoogleButton(Modifier, onSignInClickWithGoogleTapiIn)
+            if(state.isLoading) {
+                LoadingScreen(modifier = Modifier.fillMaxHeight().fillMaxWidth())
+            }
+            else {
+                LoginHeaderLogo()
+                LoginHeader(Modifier, onToCreateAccountScreen)
+                LoginForm(
+                    onLoginClick = { onSignInClickWithEmail(state.email, state.password) },
+                    email = state.email,
+                    password = state.password,
+                    onEmailChange = { newEmail -> viewModel.onEmailChange(newEmail) },
+                    onPasswordChange = { newPassword -> viewModel.onPasswordChange(newPassword) }
+                )
+                Divider(color = Color.LightGray, thickness = 2.dp)
+                LoginByGoogleButton(Modifier, onSignInClickWithGoogleTapiIn)
+            }
+
         }
     }
 }
@@ -87,7 +98,9 @@ fun LoginScreen(
 @Composable
 fun LoginHeader(modifier: Modifier = Modifier, onToCreateAccountScreen: () -> Unit) {
     Column(
-        modifier = modifier.fillMaxWidth().padding(0.dp, 16.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(0.dp, 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -213,8 +226,9 @@ fun LoginScreenPreview() {
         dummyViewModel,
         onSignInClickWithEmail = { email, password -> /* Define your click action here */ },
         onSignInClickWithGoogleTapiIn = {},
-        onToCreateAccountScreen = {})
-}
+        onToCreateAccountScreen = {},
+        )
+    }
 
 
 

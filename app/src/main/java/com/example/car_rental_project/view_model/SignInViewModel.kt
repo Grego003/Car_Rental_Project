@@ -34,6 +34,14 @@ class SignInViewModel : ViewModel() {
         _state.update { it.copy(username = updatedUsername) }
     }
 
+    fun onLoad() {
+        _state.update { it.copy(isLoading = true) }
+    }
+
+    fun onLoadFinished() {
+        _state.update { it.copy(isLoading = false) }
+    }
+
     fun resetState() {
         _state.update { AuthState() }
     }
