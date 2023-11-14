@@ -224,6 +224,7 @@ class MainActivity : ComponentActivity() {
 
                             LaunchedEffect(Unit) {
                                 userData = googleAuthService.getSignedInUser()
+                                Log.d("USERDATA", googleAuthService.getSignedInUser().toString())
                                 carRepository.getAllCarPosts().collect { carList ->
                                     carData = carList
                                     // Perform any additional operations with the data if needed
