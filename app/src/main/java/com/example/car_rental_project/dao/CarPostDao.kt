@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface CarPostDao {
     fun getAllCarPosts(): Flow<List<CarModel>>
-    suspend fun getCarPostById(id : String) : CarModel
+    suspend fun getCarPostById(id : String) : CarPostModel
     suspend fun createCarPost(userId: String?,
                               carModel : CarModel,
                               images: List<Uri> = emptyList(),

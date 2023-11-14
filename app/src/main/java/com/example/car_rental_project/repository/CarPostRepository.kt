@@ -53,12 +53,13 @@ class CarPostRepository(
             }
         }
     }
-    override suspend fun getCarPostById(id: String): CarModel {
+    override suspend fun getCarPostById(id: String): CarPostModel {
         return try {
             val dataSnapshot = database.child(id).get().await()
-            dataSnapshot.getValue(CarModel::class.java) ?: throw Exception("Car not found")
+            val result = dataSnapshot.getValue(CarModel::class.java)
+            CarPostModel(data = result, errorMessage = result?.let { null } ?: "Car id not found")
         } catch (e: Exception) {
-            throw e
+            CarPostModel(data = null, errorMessage = e.message)
         }
     }
     override suspend fun createCarPost(

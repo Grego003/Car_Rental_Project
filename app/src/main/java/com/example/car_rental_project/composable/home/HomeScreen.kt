@@ -42,6 +42,7 @@ fun HomeScreen(
     onSignOut : () -> Unit,
     carList: List<CarModel>,
     navigateToCreateCarPost : () -> Unit,
+    navigateToCarPostDetails : (carId : String) -> Unit,
 ) {
     Column (
         modifier = Modifier
@@ -83,14 +84,22 @@ fun HomeScreen(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(16.dp)
             ) {
-                items(leftColumn) { car -> CarCard(car) }
+                items(leftColumn) { car ->
+                    CarCard(car) {
+                        navigateToCarPostDetails(car.id ?: "")
+                    }
+                }
             }
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(16.dp)
             ) {
-                items(rightColumn) { car -> CarCard(car) }
+                items(rightColumn) { car ->
+                    CarCard(car) {
+                        navigateToCarPostDetails(car.id ?: "")
+                    }
+                }
             }
         }
 
@@ -108,13 +117,13 @@ fun <T> List<T>.splitAt(index: Int): Pair<List<T>, List<T>> {
 }
 
 @Composable
-fun CarCard(car: CarModel) {
+fun CarCard(car: CarModel,navigateToCarPostDetails : (carId : String?) -> Unit ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.background)
-            .clickable {}
+            .clickable { navigateToCarPostDetails(car.id) }
     ) {
         AsyncImage(
             model = car.images?.firstOrNull() ?: R.drawable.ic_launcher_background,
@@ -165,5 +174,5 @@ fun HomeScreenReview() {
     )
 
 
-    HomeScreen(dummyUserData, onSignOut = {}, carList, {})
+    HomeScreen(dummyUserData, onSignOut = {}, carList, {}, {})
 }
