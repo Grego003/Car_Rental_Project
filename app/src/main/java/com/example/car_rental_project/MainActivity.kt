@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -75,6 +76,7 @@ class MainActivity : ComponentActivity() {
                     var userData by remember { mutableStateOf<UserEntity?>(null) }
                     var carsData by remember { mutableStateOf<List<CarModel>?>(null) }
                     var carData by remember { mutableStateOf<CarModel?>(null) }
+                    
 
                     val authState by authViewModel.state.collectAsStateWithLifecycle()
                     val navController = rememberNavController()
@@ -217,13 +219,13 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("home") {
-
-                            LaunchedEffect(Unit) {
-                                userData = googleAuthService.getSignedInUser()
-                                Log.d("USERDATA", googleAuthService.getSignedInUser().toString())
-                                carRepository.getAllCarPosts().collect { carList ->
-                                    carsData = carList
-                                    // Perform any additional operations with the data if needed
+                            LaunchedEffect(carData) {
+                                if(carData == null) {
+                                    userData = googleAuthService.getSignedInUser()
+                                    carRepository.getAllCarPosts().collect { carList ->
+                                        carsData = carList
+                                    }
+                                    Log.d("CARSDATA", carsData.toString())
                                 }
                             }
 
@@ -246,7 +248,26 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("createCarPost")
                                 },
                                 navigateToCarPostDetails = { carId : String ->
-                                    navController.navigate("carPostDetails/${carId}")
+                                    lifecycleScope.launch {
+                                        try {
+                                            val result = carRepository.getCarPostById(carId)
+                                            if (result.data == null) {
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    "Car Id Not Found",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                                navController.navigate("home")
+                                            } else {
+                                                carData = result.data
+                                            }
+                                        } catch (e: Exception) {
+                                            Log.e("CarDetail", e.toString())
+                                        }
+                                        if(carData != null) {
+                                            navController.navigate("carPostDetails/${carId}")
+                                        }
+                                }
                                 }
                             )
 
@@ -280,17 +301,17 @@ class MainActivity : ComponentActivity() {
                                     // TODO masih hardcoded untuk masukin setiap value data :)
                                     lifecycleScope.launch {
                                         val carModel = CarModel(
-                                            title = "Toyota Corolla 2",
-                                            brand = "Toyota",
-                                            model = "Corolla",
-                                            condition = CarCondition.BEKAS,
-                                            yearBought = Year.of(2019).toString(),
-                                            fuelType = FuelType.BENSIN,
-                                            odometer = 30000,
-                                            category = CarCategory.SEDAN,
-                                            engineCapasity = EngineCapasity.CC_1500_TO_2000,
-                                            description = "A reliable sedan with low mileage.",
-                                            price = 12000,
+                                            title = carPostState.title,
+                                            brand = carPostState.brand,
+                                            model = carPostState.model,
+                                            condition = carPostState.condition,
+                                            yearBought = Year.of(2023).toString(),
+                                            fuelType = carPostState.fuelType,
+                                            odometer = carPostState.odometer?.toInt() ?: 0,
+                                            category = carPostState.category,
+                                            engineCapasity = carPostState.engineCapasity,
+                                            description = carPostState.description,
+                                            price = carPostState.odometer?.toInt() ?: 0,
                                             legalRequirements = true
                                         )
                                         val createCarPostResult = carRepository.createCarPost(
@@ -312,25 +333,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         ){
-                            LaunchedEffect(Unit) {
-                                try {
-                                    val result = carRepository.getCarPostById(it.arguments?.getString("id")?: "")
-                                    if (result.data == null) {
-                                        Toast.makeText(
-                                            applicationContext,
-                                            "Car Id Not Found",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                        navController.navigate("home")
-                                    } else {
-                                        carData = result.data
-                                    }
-                                } catch (e: Exception) {
-                                    Log.e("CarDetail", e.toString())
-                                }
-                            }
-
-                            carData?.let { CarPostDetailScreen(carData = it) }
+                            carData?.let {
+                                CarPostDetailScreen(navController=navController, carData = it) }
                         }
                     }
                 }

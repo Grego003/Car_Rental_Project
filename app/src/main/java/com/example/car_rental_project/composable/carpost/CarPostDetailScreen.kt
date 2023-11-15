@@ -1,19 +1,36 @@
 package com.example.car_rental_project.composable.carpost
 
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.car_rental_project.model.CarModel
 
 @Composable
-fun CarPostDetailScreen(carData : CarModel) {
+fun CarPostDetailScreen(navController: NavController, carData : CarModel) {
+
+    DisposableEffect(Unit) {
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                navController.popBackStack()
+            }
+        }
+
+        // Add the callback to the back press dispatcher
+        onDispose {
+            callback.remove()
+        }
+    }
+
     Column {
         Text(text = carData.title ?: "")
         Text(text = carData.brand ?: "")
@@ -35,9 +52,4 @@ fun CarPostDetailScreen(carData : CarModel) {
 
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CarPostDetailScreenPreview() {
-    CarPostDetailScreen(carData = CarModel())
-}
 

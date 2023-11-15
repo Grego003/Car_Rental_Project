@@ -2,6 +2,8 @@ package com.example.car_rental_project.view_model
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.example.car_rental_project.model.CarCategory
+import com.example.car_rental_project.model.CarCondition
 import com.example.car_rental_project.model.CarPostModel
 import com.example.car_rental_project.model.EngineCapasity
 import com.example.car_rental_project.model.FuelType
@@ -34,20 +36,28 @@ class CarViewModel() : ViewModel() {
         val updatedModel = model ?: ""
         _state.update { it.copy(model = updatedModel) }
     }
+    fun onConditionChange(condition : CarCondition) {
+        _state.update { it.copy(condition = condition) }
+    }
     fun onYearBoughtChange(year : Year?) {
         val updatedYear = year ?: Year.now()
         _state.update { it.copy(yearBought = year) }
     }
+
     fun onFuelTypeChange(fuelType : FuelType) {
         _state.update { it.copy(fuelType = fuelType) }
     }
-    fun onOdometerChange(odometer: Int) {
-        val updatedOdometer = odometer ?: 0
+    fun onOdometerChange(odometer: String?) {
+        val updatedOdometer = odometer ?: "0"
         _state.update { it.copy(odometer = updatedOdometer) }
     }
     fun onImagesChange(images: List<Uri>?) {
         val updatedImages = images ?: emptyList()
         _state.update { it.copy(images = updatedImages) }
+    }
+
+    fun onCategoryChange(category : CarCategory) {
+        _state.update { it.copy(category = category) }
     }
     fun onEngineCapasityChange(engineCapasity : EngineCapasity) {
         _state.update { it.copy(engineCapasity = engineCapasity) }
@@ -56,8 +66,8 @@ class CarViewModel() : ViewModel() {
         val updatedDescription = description ?: ""
         _state.update { it.copy(description = updatedDescription) }
     }
-    fun onPriceChange(price: Int) {
-        val updatedPrice = price ?: 0
+    fun onPriceChange(price: String?) {
+        val updatedPrice = price ?: "0"
         _state.update { it.copy(price = updatedPrice) }
     }
     fun onLegalRequirementsChange(legalRequirements : Boolean?) {
