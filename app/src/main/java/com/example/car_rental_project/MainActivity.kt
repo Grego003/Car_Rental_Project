@@ -27,12 +27,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.car_rental_project.composable.Nav.BottomNavigation
 import com.example.car_rental_project.composable.auth.LoginScreen
 import com.example.car_rental_project.composable.auth.RegisterScreen
 import com.example.car_rental_project.composable.carpost.CarPostDetailScreen
 import com.example.car_rental_project.composable.carpost.CreateCarPostScreen
 import com.example.car_rental_project.composable.extras.LoadingScreen
 import com.example.car_rental_project.composable.home.HomeScreen
+import com.example.car_rental_project.composable.invoice.InvoiceScreen
+import com.example.car_rental_project.composable.profile.ProfileScreen
 import com.example.car_rental_project.model.CarCategory
 import com.example.car_rental_project.model.CarCondition
 import com.example.car_rental_project.model.CarModel
@@ -45,6 +48,7 @@ import com.example.car_rental_project.service.FirebaseStorageService
 import com.example.car_rental_project.service.GoogleAuthService
 import com.example.car_rental_project.ui.theme.Car_Rental_ProjectTheme
 import com.example.car_rental_project.view_model.CarViewModel
+import com.example.car_rental_project.view_model.NavViewModel
 import com.example.car_rental_project.view_model.SignInViewModel
 import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
@@ -58,7 +62,6 @@ class MainActivity : ComponentActivity() {
             firebaseService = FirebaseDBService
         )
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val carRepository = CarPostRepository(FirebaseDBService, FirebaseStorageService)
@@ -72,13 +75,15 @@ class MainActivity : ComponentActivity() {
                 {
                     val authViewModel = viewModel<SignInViewModel>()
                     val carViewModel = viewModel<CarViewModel>()
+                    val navViewModel = viewModel<NavViewModel>()
 
                     var userData by remember { mutableStateOf<UserEntity?>(null) }
                     var carsData by remember { mutableStateOf<List<CarModel>?>(null) }
                     var carData by remember { mutableStateOf<CarModel?>(null) }
-                    
 
                     val authState by authViewModel.state.collectAsStateWithLifecycle()
+                    val navState by navViewModel.state.collectAsStateWithLifecycle()
+
                     val navController = rememberNavController()
 
                     NavHost(navController, startDestination = "login") {
@@ -118,6 +123,7 @@ class MainActivity : ComponentActivity() {
                                     ).show()
                                 }
                                 onDispose {
+                                    authViewModel.onLoadFinished()
                                 }
                             }
                             LoginScreen(
@@ -228,7 +234,7 @@ class MainActivity : ComponentActivity() {
                                     Log.d("CARSDATA", carsData.toString())
                                 }
                             }
-
+                            BottomNavigation(navController = navController, navViewModel = navViewModel)
                             HomeScreen(
                                 userData = userData,
                                 onSignOut = {
@@ -297,6 +303,8 @@ class MainActivity : ComponentActivity() {
                             CreateCarPostScreen(
                                 state = carPostState,
                                 carViewModel = carViewModel,
+                                navViewModel = navViewModel,
+                                navController = navController,
                                 storeToDatabase = {
                                     // TODO masih hardcoded untuk masukin setiap value data :)
                                     lifecycleScope.launch {
@@ -336,6 +344,20 @@ class MainActivity : ComponentActivity() {
                             carData?.let {
                                 CarPostDetailScreen(navController=navController, carData = it) }
                         }
+
+                        composable("profile")
+                        {
+                            BottomNavigation(navController = navController, navViewModel = navViewModel)
+                            ProfileScreen()
+                        }
+
+                        composable("invoice")
+                        {
+                            BottomNavigation(navController = navController, navViewModel = navViewModel)
+                            InvoiceScreen()
+                        }
+
+
                     }
                 }
             }

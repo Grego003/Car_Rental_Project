@@ -1,6 +1,7 @@
 package com.example.car_rental_project.composable.carpost
 
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,17 +19,8 @@ import com.example.car_rental_project.model.CarModel
 @Composable
 fun CarPostDetailScreen(navController: NavController, carData : CarModel) {
 
-    DisposableEffect(Unit) {
-        val callback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                navController.popBackStack()
-            }
-        }
-
-        // Add the callback to the back press dispatcher
-        onDispose {
-            callback.remove()
-        }
+    BackHandler {
+        navController.popBackStack()
     }
 
     Column {

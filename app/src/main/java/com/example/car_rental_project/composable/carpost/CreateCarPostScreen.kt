@@ -1,5 +1,6 @@
 package com.example.car_rental_project.composable.carpost
 
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,21 +27,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.car_rental_project.model.CarCategory
 import com.example.car_rental_project.model.CarCondition
 import com.example.car_rental_project.model.CarModel
 import com.example.car_rental_project.model.EngineCapasity
 import com.example.car_rental_project.model.FuelType
+import com.example.car_rental_project.view_model.NavViewModel
 
 @Composable
 fun CreateCarPostScreen(
     state : CarPostState,
     carViewModel: CarViewModel,
+    navViewModel: NavViewModel,
+    navController: NavController,
     storeToDatabase : () -> Unit,
 ) {
+    BackHandler {
+        navViewModel.resetState()
+        navController.popBackStack()
+    }
+
     Column {
-        createCarPostForm(state = state, carViewModel = carViewModel)
+        CreateCarPostForm(state = state, carViewModel = carViewModel)
         Button(onClick = {
             storeToDatabase()
         }) {
@@ -50,7 +60,7 @@ fun CreateCarPostScreen(
 }
 
 @Composable
-fun createCarPostForm(
+fun CreateCarPostForm(
     modifier: Modifier = Modifier,
     state : CarPostState,
     carViewModel: CarViewModel,
