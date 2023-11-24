@@ -72,6 +72,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose")
     implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt:coil:2.5.0")
     implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-database:20.3.0")

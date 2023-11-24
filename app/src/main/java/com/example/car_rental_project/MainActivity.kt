@@ -345,10 +345,31 @@ class MainActivity : ComponentActivity() {
                                 CarPostDetailScreen(navController=navController, carData = it) }
                         }
 
-                        composable("profile")
-                        {
+                        composable("profile") {
+                            val sampleUser = UserEntity(
+                                userId = "123",
+                                username = "JohnDoe",
+                                email = "john@example.com",
+                                profilePicture = "https://example.com/profile.jpg",
+                                phoneNumber = "123-456-7890",
+                                isVerified = true
+                            )
+
                             BottomNavigation(navController = navController, navViewModel = navViewModel)
-                            ProfileScreen()
+                            ProfileScreen(
+                                user = sampleUser,
+                                onSignOut = {
+                                    lifecycleScope.launch {
+                                        googleAuthService.signOut()
+                                        Toast.makeText(
+                                            applicationContext,
+                                            R.string.Signed_Out,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        authViewModel.resetState()
+                                        navController.navigate("login")
+                                    }
+                                })
                         }
 
                         composable("invoice")
