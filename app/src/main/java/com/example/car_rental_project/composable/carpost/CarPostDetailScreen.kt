@@ -2,8 +2,13 @@ package com.example.car_rental_project.composable.carpost
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
@@ -19,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.car_rental_project.model.CarModel
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 
 @Composable
@@ -43,17 +50,16 @@ fun CarPostDetailScreen(navController: NavController, carData: CarModel) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .shadow(16.dp, shape = MaterialTheme.shapes.medium)
+                .background(color = Color.Blue)
         ) {
-            carData.images?.firstOrNull()?.let { coverImage ->
-                Image(
-                    painter = rememberAsyncImagePainter(coverImage),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(MaterialTheme.shapes.medium)
-                )
+            LazyRow {
+                items(carData.images ?: emptyList()) { image ->
+                    AsyncImage(model = image,
+                        contentDescription = null,
+                        modifier = Modifier.width(200.dp).height(200.dp),
+                        contentScale = ContentScale.FillWidth
+                    )
+                }
             }
         }
 
@@ -74,9 +80,12 @@ fun CarDetails(carData: CarModel) {
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                CarDetailItem(Icons.Default.Info, carData.brand ?: "")
-                CarDetailItem(Icons.Default.Info, carData.model ?: "")
-                CarDetailItem(Icons.Default.Info, carData.yearBought ?: "")
+                Text(text = carData.brand ?: "")
+                Text(text = carData.model ?: "")
+
+//                Text(text=carData.model ?: "NO MODEL")
+////                CarDetailItem(Icons.Default.Info, carData.model ?: "")
+////                CarDetailItem(Icons.Default.Info, carData.yearBought.toString() ?: "")
             }
         }
         item {
@@ -117,12 +126,14 @@ fun CarDetails(carData: CarModel) {
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(8.dp)
             )
+
             CarDetailItem(Icons.Default.Info, "Category", carData.category?.displayName ?: "")
             CarDetailItem(Icons.Default.Info, "Condition", carData.condition?.displayName ?: "")
             CarDetailItem(Icons.Default.Info, "Fuel Type", carData.fuelType?.displayName ?: "")
             CarDetailItem(Icons.Default.Info, "Engine Capacity", carData.engineCapasity?.displayName ?: "")
             CarDetailItem(Icons.Default.Info, "Odometer", "${carData.odometer} km")
             CarDetailItem(Icons.Default.Info, "Price", "$${carData.price}")
+            CarDetailItem(Icons.Default.Info, "Year Bought", carData.yearBought ?: "")
         }
     }
 }

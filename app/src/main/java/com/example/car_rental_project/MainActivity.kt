@@ -223,12 +223,11 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("home") {
                             LaunchedEffect(carData) {
-                                if(carData == null) {
+                                if(userData == null) {
                                     userData = googleAuthService.getSignedInUser()
-                                    carRepository.getAllCarPosts().collect { carList ->
-                                        carsData = carList
-                                    }
-                                    Log.d("CARSDATA", carsData.toString())
+                                }
+                                carRepository.getAllCarPosts().collect { carList ->
+                                    carsData = carList
                                 }
                             }
                             BottomNavigation(navController = navController, navViewModel = navViewModel)
