@@ -64,24 +64,6 @@ fun HomeScreen(
                 .spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            TextField(
-                value = "",
-                onValueChange = { /* Handle search input change */ },
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                placeholder = { Text("Search...") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Search
-                ),
-                keyboardActions = KeyboardActions(
-                    onSearch = {
-                        // Handle search action
-                    }
-                ),
-            )
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = userData?.username ?: "",
@@ -98,7 +80,24 @@ fun HomeScreen(
                 fallback = painterResource(id = R.drawable.profile_placeholder),
             )
         }
-
+        TextField(
+            value = "",
+            onValueChange = { /* Handle search input change */ },
+            modifier = Modifier
+                .weight(0.15f)
+                .fillMaxWidth(),
+            placeholder = { Text("Search...") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    // Handle search action
+                }
+            ),
+        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
