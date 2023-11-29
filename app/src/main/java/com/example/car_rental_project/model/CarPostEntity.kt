@@ -12,7 +12,6 @@ enum class CarCondition(@SerializedName("condition") val displayName: String) {
     BARU("Baru"),
     BEKAS("Bekas"),
 }
-
 enum class CarCategory(@SerializedName("category") val displayName: String) {
     BUS("Bus"),
     CLASSIC_CAR("Classic Car"),
@@ -53,12 +52,13 @@ data class CarModel(
         null
     },
     val fuelType : FuelType? = FuelType.BENSIN,
-    val odometer : Int ? = 0,
-    val category : CarCategory ? = CarCategory.CLASSIC_CAR,
+    val odometer : Int? = 0,
+    val category : CarCategory? = CarCategory.CLASSIC_CAR,
     val images : List<String>? = listOf(""),
-    val engineCapasity : EngineCapasity ?= EngineCapasity.CC_1000_TO_1500,
-    val description : String ? = "",
-    val price : Int ? = 0,
+    val engineCapasity : EngineCapasity? = EngineCapasity.CC_1000_TO_1500,
+    val description : String? = "",
+    val price : Int? = 0,
+    val isPremiumPost : Boolean? = false,
     val legalRequirements : Boolean ? = false,
 )
 

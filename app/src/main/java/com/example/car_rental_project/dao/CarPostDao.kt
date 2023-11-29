@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import com.example.car_rental_project.model.CarModel
 import com.example.car_rental_project.model.CarPostModel
+import com.example.car_rental_project.model.UserEntity
 import kotlinx.coroutines.flow.Flow
 
 interface CarPostDao {
@@ -15,6 +16,8 @@ interface CarPostDao {
                               images: List<Uri> = emptyList(),
                               contextResolver: ContentResolver
     ) : CarPostModel
+
+    suspend fun getUserCarPosts(user : UserEntity?) : List<CarModel>?
     suspend fun deleteCarPost(id : String) : Boolean
     suspend fun editCarPost(id : String, updatedCar: CarModel) : CarModel
 }

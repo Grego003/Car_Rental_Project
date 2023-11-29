@@ -32,6 +32,7 @@ import com.example.car_rental_project.composable.auth.LoginScreen
 import com.example.car_rental_project.composable.auth.RegisterScreen
 import com.example.car_rental_project.composable.carpost.CarPostDetailScreen
 import com.example.car_rental_project.composable.carpost.CreateCarPostScreen
+import com.example.car_rental_project.composable.carpost.UserCarPostScreen
 import com.example.car_rental_project.composable.extras.LoadingScreen
 import com.example.car_rental_project.composable.home.HomeScreen
 import com.example.car_rental_project.composable.invoice.InvoiceScreen
@@ -79,6 +80,7 @@ class MainActivity : ComponentActivity() {
 
                     var userData by remember { mutableStateOf<UserEntity?>(null) }
                     var carsData by remember { mutableStateOf<List<CarModel>?>(null) }
+                    var userPostData by remember { mutableStateOf<List<CarModel>?>(null)}
                     var carData by remember { mutableStateOf<CarModel?>(null) }
 
                     val authState by authViewModel.state.collectAsStateWithLifecycle()
@@ -113,7 +115,7 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             // login with email and password
-                            DisposableEffect(authState.isSignInSuccessful) {
+                            LaunchedEffect(authState.isSignInSuccessful) {
                                 if (authState.isSignInSuccessful) {
                                     navController.navigate("home")
                                     Toast.makeText(
@@ -122,10 +124,9 @@ class MainActivity : ComponentActivity() {
                                         Toast.LENGTH_LONG
                                     ).show()
                                 }
-                                onDispose {
-                                    authViewModel.onLoadFinished()
-                                }
+                                authViewModel.onLoadFinished()
                             }
+
                             LoginScreen(
                                 viewModel = authViewModel,
                                 state = authState,
@@ -158,11 +159,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("register") {
-                            LaunchedEffect(key1 = Unit) {
-                                if (googleAuthService.getSignedInUser() != null) {
-                                    navController.navigate("home")
-                                }
-                            }
+
                             val launcher = rememberLauncherForActivityResult(
                                 contract = ActivityResultContracts.StartIntentSenderForResult(),
                                 onResult = { result ->
@@ -179,7 +176,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                             LaunchedEffect(key1 = authState.isSignInSuccessful) {
-                                authViewModel.onLoadFinished()
                                 if (authState.isSignInSuccessful) {
                                     Toast.makeText(
                                         applicationContext,
@@ -188,8 +184,9 @@ class MainActivity : ComponentActivity() {
                                     ).show()
 
                                     navController.navigate("home")
-                                    authViewModel.resetState()
+                                    // authViewModel.resetState()
                                 }
+                                authViewModel.onLoadFinished()
                             }
 
                             RegisterScreen(
@@ -273,7 +270,7 @@ class MainActivity : ComponentActivity() {
                                         if(carData != null) {
                                             navController.navigate("carPostDetails/${carId}")
                                         }
-                                }
+                                    }
                                 }
                             )
 
@@ -306,7 +303,6 @@ class MainActivity : ComponentActivity() {
                                 navViewModel = navViewModel,
                                 navController = navController,
                                 storeToDatabase = {
-                                    // TODO masih hardcoded untuk masukin setiap value data :)
                                     lifecycleScope.launch {
                                         val carModel = CarModel(
                                             title = carPostState.title,
@@ -319,7 +315,7 @@ class MainActivity : ComponentActivity() {
                                             category = carPostState.category,
                                             engineCapasity = carPostState.engineCapasity,
                                             description = carPostState.description,
-                                            price = carPostState.odometer?.toInt() ?: 0,
+                                            price = carPostState.price?.toInt() ?: 0,
                                             legalRequirements = true
                                         )
                                         val createCarPostResult = carRepository.createCarPost(
@@ -346,18 +342,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("profile") {
-                            val sampleUser = UserEntity(
-                                userId = "123",
-                                username = "JohnDoe",
-                                email = "john@example.com",
-                                profilePicture = "https://example.com/profile.jpg",
-                                phoneNumber = "123-456-7890",
-                                isVerified = true
-                            )
-
                             BottomNavigation(navController = navController, navViewModel = navViewModel)
                             ProfileScreen(
-                                user = sampleUser,
+                                user = userData,
                                 onSignOut = {
                                     lifecycleScope.launch {
                                         googleAuthService.signOut()
@@ -369,13 +356,54 @@ class MainActivity : ComponentActivity() {
                                         authViewModel.resetState()
                                         navController.navigate("login")
                                     }
-                                })
+                                },
+                                navigateToUserCarPost = {
+                                    navController.navigate("userCarPosts")
+                                }
+
+                            )
                         }
 
                         composable("invoice")
                         {
                             BottomNavigation(navController = navController, navViewModel = navViewModel)
                             InvoiceScreen()
+                        }
+
+                        composable("userCarPosts") {
+                            LaunchedEffect(userPostData) {
+                                if(userData != null) {
+                                    userPostData = carRepository.getUserCarPosts(userData)
+                                }
+                                else {
+                                    userData = googleAuthService.getSignedInUser()
+                                }
+                            }
+                            UserCarPostScreen(
+                                carList = userPostData,
+                                navigateToCarPostDetails = { carId : String ->
+                                    lifecycleScope.launch {
+                                        try {
+                                            val result = carRepository.getCarPostById(carId)
+                                            if (result.data == null) {
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    "Car Id Not Found",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                                navController.navigate("home")
+                                            } else {
+                                                carData = result.data
+                                            }
+                                        } catch (e: Exception) {
+                                            Log.e("CarDetail", e.toString())
+                                        }
+                                        if(carData != null) {
+                                            navController.navigate("carPostDetails/${carId}")
+                                        }
+                                    }
+                                }
+                            )
                         }
 
 

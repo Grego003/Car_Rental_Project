@@ -54,7 +54,6 @@ class GoogleAuthService(
                     userId = user.uid,
                     username = user.displayName,
                     email = user.email,
-                    isVerified = false,
                     )
                     userDatabase.child(user.uid).setValue(userData)
                     return UserModel(
@@ -144,7 +143,6 @@ class GoogleAuthService(
                     username = user.displayName,
                     email = user.email,
                     profilePicture = user.photoUrl?.toString(),
-                    isVerified = false,
                 )
                 userDatabase.child(user.uid).setValue(userData)
                 return UserModel(

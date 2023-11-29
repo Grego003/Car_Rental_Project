@@ -38,8 +38,9 @@ import com.example.car_rental_project.model.UserEntity
 
 @Composable
 fun ProfileScreen(
-    user: UserEntity,
+    user: UserEntity?,
     onSignOut: () -> Unit,
+    navigateToUserCarPost : () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -57,10 +58,10 @@ fun ProfileScreen(
                 .background(MaterialTheme.colorScheme.primary)
                 .border(2.dp, MaterialTheme.colorScheme.secondary, CircleShape)
         ) {
-            if (!user.profilePicture.isNullOrBlank()) {
+            if (!user?.profilePicture.isNullOrBlank()) {
                 Image(
                     painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current).data(data = user.profilePicture)
+                    ImageRequest.Builder(LocalContext.current).data(data = user?.profilePicture)
                         .apply(block = fun ImageRequest.Builder.() {
                             crossfade(true)
                         }).build()
@@ -75,13 +76,13 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // User Details
-        Text(text = user.username.orEmpty(), style = MaterialTheme.typography.titleLarge)
+        Text(text = user?.username.orEmpty(), style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = user.email.orEmpty(), style = MaterialTheme.typography.bodyMedium)
+        Text(text = user?.email.orEmpty(), style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Phone: ${user.phoneNumber.orEmpty()}", style = MaterialTheme.typography.bodyMedium)
+        Text(text = "Phone: ${user?.phoneNumber.orEmpty()}", style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Verified: ${user.isVerified == true}", style = MaterialTheme.typography.bodyMedium)
+        Text(text = "Premium: ${user?.isPremium == true}", style = MaterialTheme.typography.bodyMedium)
 
         // Sign Out Button
         Button(
@@ -91,6 +92,15 @@ fun ProfileScreen(
                 .padding(vertical = 16.dp)
         ) {
             Text(text = "Sign Out")
+        }
+
+        Button(
+            onClick = navigateToUserCarPost,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+        ) {
+            Text(text = "Your Post")
         }
     }
 }

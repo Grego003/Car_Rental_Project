@@ -188,7 +188,7 @@ fun HomeScreenReview() {
         username = "John",
         profilePicture = "",
         phoneNumber = "",
-        isVerified = false,
+        isPremium = false,
     )
 
     val carList = listOf(

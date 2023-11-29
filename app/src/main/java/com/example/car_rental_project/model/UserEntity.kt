@@ -6,7 +6,8 @@ data class UserEntity(
     val email : String? = "",
     val profilePicture : String? = "",
     val phoneNumber : String? = "",
-    val isVerified : Boolean? = false,
+    val money : Int? = 0,
+    val isPremium : Boolean? = false,
 )
 
 

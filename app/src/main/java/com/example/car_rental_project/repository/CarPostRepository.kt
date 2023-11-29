@@ -8,16 +8,20 @@ import androidx.compose.runtime.currentCompositionLocalContext
 import com.example.car_rental_project.dao.CarPostDao
 import com.example.car_rental_project.model.CarModel
 import com.example.car_rental_project.model.CarPostModel
+import com.example.car_rental_project.model.UserEntity
 import com.example.car_rental_project.model.UserModel
 import com.example.car_rental_project.service.FirebaseDBService
 import com.example.car_rental_project.service.FirebaseStorageService
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.resumeWithException
 
 class CarPostRepository(
     firebaseDb: FirebaseDBService,
@@ -62,6 +66,24 @@ class CarPostRepository(
             CarPostModel(data = null, errorMessage = e.message)
         }
     }
+
+    override suspend fun getUserCarPosts(user : UserEntity?) : List<CarModel>? {
+        val carPosts = mutableListOf<CarModel>()
+        Log.d("UserId", user.toString())
+         try {
+            val dataSnapshots = database.orderByChild("userId").equalTo(user?.userId).get().await()
+            for( childSnapshot in dataSnapshots.children) {
+                val result = childSnapshot.getValue(CarModel::class.java)
+                result?.let {
+                    carPosts.add(it)
+                }
+            }
+        } catch (e : Exception) {
+             Log.e("Firebase", "Error getting car posts: ${e.message}", e)
+        }
+        return if (carPosts.isEmpty()) null else carPosts
+    }
+
     override suspend fun createCarPost(
         userId : String?,
         carModel: CarModel,
@@ -114,5 +136,6 @@ class CarPostRepository(
         } catch (e: Exception) {
             throw e
         }
+
     }
 }
