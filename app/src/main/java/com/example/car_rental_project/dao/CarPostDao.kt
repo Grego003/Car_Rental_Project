@@ -17,7 +17,7 @@ interface CarPostDao {
                               contextResolver: ContentResolver
     ) : CarPostModel
 
-    suspend fun getUserCarPosts(user : UserEntity?) : List<CarModel>?
+    suspend fun getUserCarPosts(user : UserEntity?) : Flow<List<CarModel>>?
     suspend fun deleteCarPost(id : String) : Boolean
     suspend fun editCarPost(id : String, updatedCar: CarModel) : CarModel
 }

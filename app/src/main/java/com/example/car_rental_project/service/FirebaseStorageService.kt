@@ -49,10 +49,10 @@ object FirebaseStorageService {
 
         return null
     }
-    suspend fun uploadImageToFirebase(imageData : ImageData): String? {
+    suspend fun uploadImageToFirebase(storage : String?, imageData : ImageData): String? {
         try {
             val fileName = "${UUID.randomUUID()}.${imageData.extension}"
-            val refStorage = storageRef.child("carPostImages/$fileName")
+            val refStorage = storageRef.child("$storage/$fileName")
             val uploadTask = refStorage.putBytes(imageData.data).await()
             if (uploadTask.task.isSuccessful) {
                 return refStorage.downloadUrl.await().toString()

@@ -142,7 +142,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun CarCard(car: CarModel,navigateToCarPostDetails : (carId : String?) -> Unit ) {
+fun CarCard(car: CarModel, navigateToCarPostDetails : (carId : String?) -> Unit ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -187,7 +187,7 @@ fun HomeScreenReview() {
         username = "John",
         profilePicture = "",
         phoneNumber = "",
-        isPremium = false,
+        premium = false,
     )
 
     val carList = listOf(

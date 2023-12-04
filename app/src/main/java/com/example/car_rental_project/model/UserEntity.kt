@@ -7,7 +7,7 @@ data class UserEntity(
     val profilePicture : String? = "",
     val phoneNumber : String? = "",
     val money : Int? = 0,
-    val isPremium : Boolean? = false,
+    val premium : Boolean? = false,
 )
 
 

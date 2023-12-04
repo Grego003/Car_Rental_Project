@@ -8,16 +8,19 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
@@ -36,23 +39,32 @@ import com.example.car_rental_project.composable.carpost.UserCarPostScreen
 import com.example.car_rental_project.composable.extras.LoadingScreen
 import com.example.car_rental_project.composable.home.HomeScreen
 import com.example.car_rental_project.composable.invoice.InvoiceScreen
+import com.example.car_rental_project.composable.profile.EditProfileScreen
 import com.example.car_rental_project.composable.profile.ProfileScreen
+import com.example.car_rental_project.composable.transaction.TransactionScreen
 import com.example.car_rental_project.model.CarCategory
 import com.example.car_rental_project.model.CarCondition
 import com.example.car_rental_project.model.CarModel
 import com.example.car_rental_project.model.EngineCapasity
 import com.example.car_rental_project.model.FuelType
+import com.example.car_rental_project.model.TransactionEntity
+import com.example.car_rental_project.model.TransactionStatus
 import com.example.car_rental_project.model.UserEntity
 import com.example.car_rental_project.repository.CarPostRepository
+import com.example.car_rental_project.repository.TransactionRepository
 import com.example.car_rental_project.service.FirebaseDBService
 import com.example.car_rental_project.service.FirebaseStorageService
 import com.example.car_rental_project.service.GoogleAuthService
 import com.example.car_rental_project.ui.theme.Car_Rental_ProjectTheme
 import com.example.car_rental_project.view_model.CarViewModel
 import com.example.car_rental_project.view_model.NavViewModel
+import com.example.car_rental_project.view_model.ProfileViewModel
 import com.example.car_rental_project.view_model.SignInViewModel
 import com.google.android.gms.auth.api.identity.Identity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Year
 
 class MainActivity : ComponentActivity() {
@@ -60,12 +72,14 @@ class MainActivity : ComponentActivity() {
         GoogleAuthService(
             context = applicationContext,
             oneTapClient = Identity.getSignInClient(applicationContext),
-            firebaseService = FirebaseDBService
+            firebaseService = FirebaseDBService,
+            firebaseStorage = FirebaseStorageService,
         )
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val carRepository = CarPostRepository(FirebaseDBService, FirebaseStorageService)
+        val transactionRepository = TransactionRepository(FirebaseDBService)
         setContent {
             Car_Rental_ProjectTheme {
                 // A surface container using the 'background' color from the theme
@@ -77,11 +91,13 @@ class MainActivity : ComponentActivity() {
                     val authViewModel = viewModel<SignInViewModel>()
                     val carViewModel = viewModel<CarViewModel>()
                     val navViewModel = viewModel<NavViewModel>()
+                    val profileViewModel = viewModel<ProfileViewModel>()
 
                     var userData by remember { mutableStateOf<UserEntity?>(null) }
                     var carsData by remember { mutableStateOf<List<CarModel>?>(null) }
-                    var userPostData by remember { mutableStateOf<List<CarModel>?>(null)}
+                    var userPostData by remember { mutableStateOf<List<CarModel>?>(null) }
                     var carData by remember { mutableStateOf<CarModel?>(null) }
+                    var transactionData by remember { mutableStateOf<List<TransactionEntity>?>(null) }
 
                     val authState by authViewModel.state.collectAsStateWithLifecycle()
                     val navState by navViewModel.state.collectAsStateWithLifecycle()
@@ -116,6 +132,7 @@ class MainActivity : ComponentActivity() {
                             )
                             // login with email and password
                             LaunchedEffect(authState.isSignInSuccessful) {
+                                userData = googleAuthService.getSignedInUser()
                                 if (authState.isSignInSuccessful) {
                                     navController.navigate("home")
                                     Toast.makeText(
@@ -182,7 +199,6 @@ class MainActivity : ComponentActivity() {
                                         R.string.Sign_in_Successful,
                                         Toast.LENGTH_LONG
                                     ).show()
-
                                     navController.navigate("home")
                                     // authViewModel.resetState()
                                 }
@@ -212,6 +228,7 @@ class MainActivity : ComponentActivity() {
                                                 password = password
                                             )
                                         authViewModel.onSignInResult(signInResult)
+                                        userData = signInResult.data
                                     }
                                 },
                                 onToLoginScreen = {
@@ -223,14 +240,14 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("home") {
                             LaunchedEffect(carData) {
-                                if(userData == null) {
-                                    userData = googleAuthService.getSignedInUser()
-                                }
                                 carRepository.getAllCarPosts().collect { carList ->
                                     carsData = carList
                                 }
                             }
-                            BottomNavigation(navController = navController, navViewModel = navViewModel)
+                            BottomNavigation(
+                                navController = navController,
+                                navViewModel = navViewModel
+                            )
                             HomeScreen(
                                 userData = userData,
                                 onSignOut = {
@@ -249,7 +266,7 @@ class MainActivity : ComponentActivity() {
                                 navigateToCreateCarPost = {
                                     navController.navigate("createCarPost")
                                 },
-                                navigateToCarPostDetails = { carId : String ->
+                                navigateToCarPostDetails = { carId: String ->
                                     lifecycleScope.launch {
                                         try {
                                             val result = carRepository.getCarPostById(carId)
@@ -266,7 +283,7 @@ class MainActivity : ComponentActivity() {
                                         } catch (e: Exception) {
                                             Log.e("CarDetail", e.toString())
                                         }
-                                        if(carData != null) {
+                                        if (carData != null) {
                                             navController.navigate("carPostDetails/${carId}")
                                         }
                                     }
@@ -335,13 +352,49 @@ class MainActivity : ComponentActivity() {
                                     type = NavType.StringType
                                 }
                             )
-                        ){
+                        ) {
                             carData?.let {
-                                CarPostDetailScreen(navController=navController, carData = it) }
+                                CarPostDetailScreen(
+                                    navController = navController,
+                                    carData = it,
+                                    createTransaction = {
+                                        lifecycleScope.launch {
+                                            val result = transactionRepository.createTransaction(
+                                                TransactionEntity(
+                                                    postCarId = it.id,
+                                                    buyerId = userData?.userId,
+                                                    buyerName = userData?.username,
+                                                    sellerId = it.userId,
+                                                    title = it.title,
+                                                    brand = it.brand,
+                                                    model = it.model,
+                                                    price = it.price
+                                                )
+                                            )
+                                            if (result.data != null) {
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    "Transaction succesfuly created",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                                navController.navigate("transaction")
+                                            } else {
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    result.errorMessage.toString(),
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        }
+                                    })
+                            }
                         }
 
                         composable("profile") {
-                            BottomNavigation(navController = navController, navViewModel = navViewModel)
+                            BottomNavigation(
+                                navController = navController,
+                                navViewModel = navViewModel
+                            )
                             ProfileScreen(
                                 user = userData,
                                 onSignOut = {
@@ -358,6 +411,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 navigateToUserCarPost = {
                                     navController.navigate("userCarPosts")
+                                },
+                                navigateToEditProfile = {
+                                    navController.navigate("editUserProfile")
                                 }
 
                             )
@@ -365,22 +421,76 @@ class MainActivity : ComponentActivity() {
 
                         composable("invoice")
                         {
-                            BottomNavigation(navController = navController, navViewModel = navViewModel)
+                            BottomNavigation(
+                                navController = navController,
+                                navViewModel = navViewModel
+                            )
                             InvoiceScreen()
                         }
 
-                        composable("userCarPosts") {
-                            LaunchedEffect(userPostData) {
-                                if(userData != null) {
-                                    userPostData = carRepository.getUserCarPosts(userData)
-                                }
-                                else {
+                        composable("editUserProfile") {
+
+                            val state by profileViewModel.state.collectAsState()
+
+                            LaunchedEffect(userData, state.isUpdateSuccessful) {
+                                if (userData == null || state.isUpdateSuccessful) {
                                     userData = googleAuthService.getSignedInUser()
+                                    profileViewModel.resetState()
                                 }
                             }
+                            EditProfileScreen(userModel = userData,
+                                profileViewModel = profileViewModel,
+                                saveProfile = {
+                                    val updatedUserData = UserEntity(
+                                        email = state.email,
+                                        userId = state.userId,
+                                        username = state.username,
+                                        phoneNumber = state.phoneNumber,
+                                        premium = state.premium,
+                                    )
+                                    lifecycleScope.launch {
+                                        val updateResult = googleAuthService.editUserProfile(
+                                            updatedUserData,
+                                            state.profilePicture,
+                                            contentResolver
+                                        )
+
+                                        if (updateResult.data == null) {
+                                            Toast.makeText(
+                                                applicationContext,
+                                                updateResult.errorMessage,
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            navController.popBackStack()
+                                        } else {
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "update data is Successful",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            profileViewModel.onUpdateResult(updateResult)
+                                            navController.popBackStack()
+                                        }
+                                    }
+                                })
+                        }
+
+                        composable("userCarPosts") {
+
+                            val userCarPostsState =
+                                remember { MutableStateFlow<List<CarModel>>(emptyList()) }
+
+                            LaunchedEffect(userData) {
+                                if (userData != null) {
+                                    carRepository.getUserCarPosts(userData)?.collect { carList ->
+                                        userCarPostsState.value = carList
+                                    }
+                                }
+                            }
+
                             UserCarPostScreen(
-                                carList = userPostData,
-                                navigateToCarPostDetails = { carId : String ->
+                                carList = userCarPostsState.collectAsState().value,
+                                navigateToCarPostDetails = { carId: String ->
                                     lifecycleScope.launch {
                                         try {
                                             val result = carRepository.getCarPostById(carId)
@@ -397,15 +507,83 @@ class MainActivity : ComponentActivity() {
                                         } catch (e: Exception) {
                                             Log.e("CarDetail", e.toString())
                                         }
-                                        if(carData != null) {
+                                        if (carData != null) {
                                             navController.navigate("carPostDetails/${carId}")
+                                        }
+                                    }
+                                },
+                                deletePost = { id ->
+                                    lifecycleScope.launch {
+                                        val isDeletionSuccess = carRepository.deleteCarPost(id)
+                                        if (isDeletionSuccess) {
+                                            navController.navigate("profile")
                                         }
                                     }
                                 }
                             )
                         }
+                        composable("transaction")
 
+                        {
+                            LaunchedEffect(key1 = transactionData) {
+                                transactionRepository.getAllTransaction().collect { transaction ->
+                                    transactionData = transaction
+                                }
+                            }
+                            Box(
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                BottomNavigation(
+                                    navController = navController,
+                                    navViewModel = navViewModel
+                                )
+                                TransactionScreen(
+                                    authUser = userData,
+                                    transactionData = transactionData,
+                                    rejectTransaction = { transaction ->
+                                        lifecycleScope.launch {
+                                            val result = transactionRepository.updateTransaction(TransactionStatus.CANCELLED, transaction)
 
+                                            if(result.data != null) {
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    "Transaction Success",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                                navController.navigate("home")
+                                            }
+                                            else {
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    result.errorMessage,
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        }
+                                    },
+                                    acceptTransaction = { transaction ->
+                                        lifecycleScope.launch {
+                                            val result = transactionRepository.updateTransaction(TransactionStatus.FINISHED, transaction)
+                                            if(result.data != null) {
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    "Transaction Success",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                                navController.navigate("home")
+                                            }
+                                            else {
+                                                Toast.makeText(
+                                                    applicationContext,
+                                                    result.errorMessage,
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }

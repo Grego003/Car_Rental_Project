@@ -67,23 +67,35 @@ class CarPostRepository(
         }
     }
 
-    override suspend fun getUserCarPosts(user : UserEntity?) : List<CarModel>? {
-        val carPosts = mutableListOf<CarModel>()
-        Log.d("UserId", user.toString())
-         try {
-            val dataSnapshots = database.orderByChild("userId").equalTo(user?.userId).get().await()
-            for( childSnapshot in dataSnapshots.children) {
-                val result = childSnapshot.getValue(CarModel::class.java)
-                result?.let {
-                    carPosts.add(it)
+    override suspend fun getUserCarPosts(user : UserEntity?) : Flow<List<CarModel>>? {
+        val query = database.orderByChild("userId").equalTo(user?.userId)
+
+        return callbackFlow {
+            val valueEventListener = object : ValueEventListener {
+                override fun onDataChange(carSnapshot: DataSnapshot) {
+                    val carList = carSnapshot.children.mapNotNull { snapshot ->
+                        snapshot.getValue(CarModel::class.java)
+                    }
+                    try {
+                        trySend(carList)
+                    } catch (e: Exception) {
+                        close(e)
+                    }
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    try {
+                        close(error.toException())
+                    } catch (e: Exception) {
+                        Log.e("CarRepository", "Error while closing flow", e)
+                    }
                 }
             }
-        } catch (e : Exception) {
-             Log.e("Firebase", "Error getting car posts: ${e.message}", e)
+            query.addValueEventListener(valueEventListener)
+            awaitClose {
+                database.removeEventListener(valueEventListener)
+            }
         }
-        return if (carPosts.isEmpty()) null else carPosts
     }
-
     override suspend fun createCarPost(
         userId : String?,
         carModel: CarModel,
@@ -96,7 +108,7 @@ class CarPostRepository(
             if (images.isNotEmpty()) {
                 val imageUrls = images.map { imageUri ->
                     val image = storage.readImageBytes(contentResolver = contextResolver, uri = imageUri)
-                    storage.uploadImageToFirebase(image)
+                    storage.uploadImageToFirebase("carPostImages", image)
                 }
                 val carData = carModel.copy(
                     id = carReference.key,
@@ -123,7 +135,7 @@ class CarPostRepository(
             carReference.removeValue().await()
             true
         } catch (e: Exception) {
-            throw e
+            false
         }
     }
 

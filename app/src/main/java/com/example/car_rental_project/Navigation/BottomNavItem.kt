@@ -7,12 +7,14 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.twotone.AddCircle
 import androidx.compose.material.icons.twotone.Edit
 import androidx.compose.material.icons.twotone.Face
 import androidx.compose.material.icons.twotone.Home
 import androidx.compose.material.icons.twotone.Person
 import androidx.compose.material.icons.twotone.Refresh
+import androidx.compose.material.icons.twotone.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.car_rental_project.R
 
@@ -40,12 +42,12 @@ sealed class BottomNavItem(
             "profile"
     )
     object AddCarPost : BottomNavItem(
-        title = "Create Post",
-        selectedIcon = Icons.TwoTone.AddCircle,
-        unSelectedIcon = Icons.Default.AddCircle,
+        title = "transaction",
+        selectedIcon = Icons.TwoTone.ShoppingCart,
+        unSelectedIcon = Icons.Default.ShoppingCart,
         false,
         null,
-        "createCarPost"
+        "transaction"
     )
     object History: BottomNavItem(
         title = "Invoice",

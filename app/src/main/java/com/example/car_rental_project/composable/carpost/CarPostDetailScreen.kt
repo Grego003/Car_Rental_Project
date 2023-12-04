@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,16 +25,21 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.car_rental_project.model.CarModel
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 @Composable
-fun CarPostDetailScreen(navController: NavController, carData: CarModel) {
+fun CarPostDetailScreen(
+    navController: NavController,
+    carData: CarModel,
+    createTransaction : () -> Unit,
+    ) {
     BackHandler {
         navController.popBackStack()
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,7 +62,9 @@ fun CarPostDetailScreen(navController: NavController, carData: CarModel) {
                 items(carData.images ?: emptyList()) { image ->
                     AsyncImage(model = image,
                         contentDescription = null,
-                        modifier = Modifier.width(200.dp).height(200.dp),
+                        modifier = Modifier
+                            .width(200.dp)
+                            .height(200.dp),
                         contentScale = ContentScale.FillWidth
                     )
                 }
@@ -66,12 +74,12 @@ fun CarPostDetailScreen(navController: NavController, carData: CarModel) {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Car Details
-        CarDetails(carData)
+        CarDetails(carData, createTransaction)
     }
 }
 
 @Composable
-fun CarDetails(carData: CarModel) {
+fun CarDetails(carData: CarModel, createTransaction: () -> Unit) {
     LazyColumn {
         item {
             Row(
@@ -134,6 +142,7 @@ fun CarDetails(carData: CarModel) {
             CarDetailItem(Icons.Default.Info, "Odometer", "${carData.odometer} km")
             CarDetailItem(Icons.Default.Info, "Price", "$${carData.price}")
             CarDetailItem(Icons.Default.Info, "Year Bought", carData.yearBought ?: "")
+            ButtonList(createTransaction = createTransaction)
         }
     }
 }
@@ -153,6 +162,77 @@ fun CarDetailItem(icon: ImageVector, label: String, value: String) {
         Text(text = value, style = MaterialTheme.typography.bodySmall)
     }
 }
+@Composable
+fun ButtonList(createTransaction : ()-> Unit) {
+    var isDialogVisible by remember { mutableStateOf(false) }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.BottomCenter)
+        ) {
+            Button(
+                onClick = { isDialogVisible = true },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+            ) {
+                Text("Buy Now")
+            }
+
+            Button(
+                onClick = { /* Handle button click */ },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp)
+            ) {
+                Text("WhatsApp")
+            }
+
+            if (isDialogVisible) {
+                BuyConfirmationDialog(
+                    onConfirm = {
+                        createTransaction.invoke()
+                        isDialogVisible = false
+                    },
+                    onCancel = { isDialogVisible = false }
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+fun BuyConfirmationDialog(
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = {
+            Text("Are you sure you want to buy?")
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm
+            ) {
+                Text("Yes")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onCancel
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
+}
 
 @Composable
 fun CarDetailItem(icon: ImageVector, value: String) {
@@ -160,6 +240,7 @@ fun CarDetailItem(icon: ImageVector, value: String) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
+
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp))

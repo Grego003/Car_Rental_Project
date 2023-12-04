@@ -1,13 +1,16 @@
 package com.example.car_rental_project.service
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.net.Uri
 import android.util.Log
 import androidx.core.content.ContextCompat.getString
 import com.example.car_rental_project.R
 import com.example.car_rental_project.model.UserModel
 import com.example.car_rental_project.model.UserEntity
+import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
 import com.google.firebase.Firebase
@@ -16,17 +19,19 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.auth.auth
 import com.google.firebase.database.getValue
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.util.concurrent.CancellationException
 
 class GoogleAuthService(
     private val context: Context,
-    private val oneTapClient : SignInClient,
-    private val firebaseService :  FirebaseDBService) {
+    private val oneTapClient: SignInClient,
+    private val firebaseService:  FirebaseDBService,
+    private val firebaseStorage: FirebaseStorageService) {
 
+    private val storage = firebaseStorage
     private val auth = Firebase.auth
     private val userDatabase = firebaseService.getReferenceChild("users")
-
     suspend fun signInWithGoogleOneTapClient() : IntentSender? {
         val result = try {
             oneTapClient.beginSignIn(
@@ -71,6 +76,42 @@ class GoogleAuthService(
         } else {
             return UserModel(data = null, errorMessage = getString(context, R.string.sign_up_Empty))
         }
+    }
+
+    suspend fun editUserProfile(
+        updatedUser : UserEntity,
+        image : Uri?,
+        contextResolver: ContentResolver) : UserModel {
+        if (auth.currentUser != null) {
+            try {
+                val currentUser = auth.currentUser ?: throw Exception("User Not Found")
+                val userSnapshot = userDatabase.child(currentUser.uid).get().await()
+                var user = updatedUser
+                if (userSnapshot.exists()) {
+                    if(image != null) {
+                        val imageByte = storage.readImageBytes(contextResolver, image)
+                        val imageUrl = storage.uploadImageToFirebase("userImages", imageByte)
+                        user = user.copy(profilePicture = imageUrl)
+                    }
+                    else {
+                        val currentImage = userSnapshot.getValue<UserEntity>()?.profilePicture
+                        user = user.copy(profilePicture = currentImage)
+                    }
+                    val userRef = userDatabase.child(currentUser.uid)
+                    userRef.setValue(user).await()
+                    return UserModel(data = updatedUser, errorMessage = null)
+                } else {
+                    return UserModel(data = null, errorMessage = "user not found in realtime database")
+                }
+            } catch (e: Exception) {
+                // Handle exceptions, log errors, or throw further if needed
+                e.printStackTrace()
+                throw e
+            }
+        } else {
+            throw Exception("User not authenticated")
+        }
+
     }
 
     suspend fun signInUserWithEmailAndPassword(email: String?, password: String?) : UserModel {

@@ -41,6 +41,7 @@ fun ProfileScreen(
     user: UserEntity?,
     onSignOut: () -> Unit,
     navigateToUserCarPost : () -> Unit,
+    navigateToEditProfile : () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -82,7 +83,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Phone: ${user?.phoneNumber.orEmpty()}", style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = "Premium: ${user?.isPremium == true}", style = MaterialTheme.typography.bodyMedium)
+        Text(text = "Premium: ${user?.premium.toString()}", style = MaterialTheme.typography.bodyMedium)
 
         // Sign Out Button
         Button(
@@ -101,6 +102,15 @@ fun ProfileScreen(
                 .padding(vertical = 16.dp)
         ) {
             Text(text = "Your Post")
+        }
+
+        Button(
+            onClick = navigateToEditProfile,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)
+        ) {
+            Text(text = "Edit Profile")
         }
     }
 }
