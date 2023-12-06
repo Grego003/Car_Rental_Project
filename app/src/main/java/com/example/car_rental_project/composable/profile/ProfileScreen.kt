@@ -84,7 +84,8 @@ fun ProfileScreen(
         Text(text = "Phone: ${user?.phoneNumber.orEmpty()}", style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Premium: ${user?.premium.toString()}", style = MaterialTheme.typography.bodyMedium)
-
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Profit: ${user?.money.toString()}", style = MaterialTheme.typography.bodyMedium)
         // Sign Out Button
         Button(
             onClick = onSignOut,

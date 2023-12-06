@@ -98,6 +98,7 @@ class CarPostRepository(
     }
     override suspend fun createCarPost(
         userId : String?,
+        sellerName : String?,
         carModel: CarModel,
         images: List<Uri>,
         contextResolver: ContentResolver,
@@ -127,7 +128,6 @@ class CarPostRepository(
             return CarPostModel(data = null, errorMessage = e.message)
         }
     }
-
 
     override suspend fun deleteCarPost(id: String): Boolean {
         return try {

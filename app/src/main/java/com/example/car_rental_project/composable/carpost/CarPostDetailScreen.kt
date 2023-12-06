@@ -31,8 +31,11 @@ import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.car_rental_project.model.UserEntity
+
 @Composable
 fun CarPostDetailScreen(
+    authUser : UserEntity?,
     navController: NavController,
     carData: CarModel,
     createTransaction : () -> Unit,
@@ -74,12 +77,12 @@ fun CarPostDetailScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Car Details
-        CarDetails(carData, createTransaction)
+        CarDetails(carData, createTransaction, authUser)
     }
 }
 
 @Composable
-fun CarDetails(carData: CarModel, createTransaction: () -> Unit) {
+fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : UserEntity?) {
     LazyColumn {
         item {
             Row(
@@ -142,7 +145,9 @@ fun CarDetails(carData: CarModel, createTransaction: () -> Unit) {
             CarDetailItem(Icons.Default.Info, "Odometer", "${carData.odometer} km")
             CarDetailItem(Icons.Default.Info, "Price", "$${carData.price}")
             CarDetailItem(Icons.Default.Info, "Year Bought", carData.yearBought ?: "")
-            ButtonList(createTransaction = createTransaction)
+            if(carData.userId != authUser?.userId) {
+                ButtonList(createTransaction = createTransaction)
+            }
         }
     }
 }

@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,28 +42,30 @@ enum class TransactionType(@SerializedName("type") val displayName: String) {
     BUYER("Buyer"),
     SELLER("Seller"),
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionScreen(
     transactionData: List<TransactionEntity>?,
     authUser: UserEntity?,
-    acceptTransaction : (transaction: TransactionEntity) -> Unit,
-    rejectTransaction : (transaction: TransactionEntity) -> Unit,
-    ) {
-
+    acceptTransaction: (transaction: TransactionEntity) -> Unit,
+    rejectTransaction: (transaction: TransactionEntity) -> Unit,
+) {
     var sellerTransactionList by remember { mutableStateOf<List<TransactionEntity>?>(null) }
     var buyerTransactionList by remember { mutableStateOf<List<TransactionEntity>?>(null) }
-    var isUpdated by remember { mutableStateOf(false) }
-    var TopBarState by remember { mutableStateOf(TransactionType.BUYER) }
+    var topBarState by remember { mutableStateOf(TransactionType.BUYER) }
 
     LaunchedEffect(transactionData) {
         sellerTransactionList = transactionData?.filter {
             it.sellerId == authUser?.userId &&
-            it.status == TransactionStatus.WAITING
+                    it.status == TransactionStatus.WAITING
         }
-        buyerTransactionList = transactionData?.filter { it.buyerId == authUser?.userId &&
-                it.status == TransactionStatus.WAITING }
+        buyerTransactionList = transactionData?.filter {
+            it.buyerId == authUser?.userId &&
+                    it.status == TransactionStatus.WAITING
+        }
     }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -68,18 +73,18 @@ fun TransactionScreen(
             title = { Text(text = "Transaction") },
             actions = {
                 TextButton(
-                    onClick = { TopBarState = TransactionType.BUYER },
+                    onClick = { topBarState = TransactionType.BUYER },
                     colors = ButtonDefaults.textButtonColors(
-                        containerColor = if (TopBarState == TransactionType.BUYER) Color.LightGray else Color.Transparent
+                        containerColor = if (topBarState == TransactionType.BUYER) Color.LightGray else Color.Transparent
                     ),
                 ) {
                     Text("Buyer")
                 }
 
                 TextButton(
-                    onClick = { TopBarState = TransactionType.SELLER },
+                    onClick = { topBarState = TransactionType.SELLER },
                     colors = ButtonDefaults.textButtonColors(
-                        containerColor = if (TopBarState == TransactionType.SELLER) Color.LightGray else Color.Transparent
+                        containerColor = if (topBarState == TransactionType.SELLER) Color.LightGray else Color.Transparent
                     )
                 ) {
                     Text("Seller")
@@ -91,34 +96,39 @@ fun TransactionScreen(
                 .fillMaxWidth()
                 .background(color = Color.Green)
         ) {
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(1),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                if (TopBarState == TransactionType.BUYER) {
-                    items(items = buyerTransactionList.orEmpty()) { transaction ->
-                        TransactionCard(transaction = transaction)
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {rejectTransaction(transaction)}
-                        ) {
-                            Text(text = "Cancel")
+                if (topBarState == TransactionType.BUYER) {
+                    itemsIndexed(items = buyerTransactionList.orEmpty()) { index, transaction ->
+                        Column {
+                            TransactionCard(transaction = transaction)
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { rejectTransaction(transaction) }
+                            ) {
+                                Text(text = "Cancel")
+                            }
                         }
                     }
                 } else {
-                    items(items = sellerTransactionList.orEmpty()) { transaction ->
-                        TransactionCard(transaction = transaction)
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { acceptTransaction(transaction) }
-                        ) {
-                            Text(text = "Approved")
-                        }
-                        Button(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { rejectTransaction(transaction) }
-                        ) {
-                            Text(text = "Cancel")
+                    itemsIndexed(items = sellerTransactionList.orEmpty()) { index, transaction ->
+                        Column {
+                            TransactionCard(transaction = transaction)
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { acceptTransaction(transaction) }
+                            ) {
+                                Text(text = "Approved")
+                            }
+                            Button(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { rejectTransaction(transaction) }
+                            ) {
+                                Text(text = "Cancel")
+                            }
                         }
                     }
                 }
@@ -126,14 +136,15 @@ fun TransactionScreen(
         }
     }
 }
+
 @Composable
 fun TransactionCard(transaction: TransactionEntity) {
     Card(
-        Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        Text("Title: ${transaction.title}")
+        Text("Title: ${transaction.carPost?.title}")
         Text("Buyer: ${transaction.buyerName}")
-        Text(text = "Price: ${transaction.price}")
+        Text(text = "Price: ${transaction.carPost?.price}")
         Text(text = "Status: ${transaction.status}")
     }
 }

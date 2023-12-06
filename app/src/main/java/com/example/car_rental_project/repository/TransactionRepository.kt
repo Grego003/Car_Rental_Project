@@ -96,4 +96,20 @@ class TransactionRepository(
         }
     }
 
+    override suspend fun deleteTransaction(transactionId: String): Boolean {
+        return try {
+            val transactionSnapshot = database.child(transactionId).get().await()
+            if(transactionSnapshot.exists()) {
+                val transactionRef = database.child(transactionId)
+                transactionRef.removeValue().await()
+                true
+            }
+            else {
+                false
+            }
+        } catch (e : Exception) {
+            false
+        }
+    }
+
 }

@@ -15,8 +15,10 @@ interface TransactionDao {
         transactionEntity: TransactionEntity,
         ) : TransactionModel
     fun getAllTransaction() : Flow<List<TransactionEntity>>
-
     suspend fun updateTransaction(
         transactionStatus: TransactionStatus,
         currentTransaction: TransactionEntity) : TransactionModel
+    suspend fun deleteTransaction(
+        transactionId : String
+    ) : Boolean
 }

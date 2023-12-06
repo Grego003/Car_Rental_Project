@@ -74,7 +74,7 @@ fun EditProfileScreen(
             label = { Text(text = "Username") }
         )
         TextField(
-            value = state.phoneNumber.takeIf { it?.isNotBlank() == true } ?: "No Phone Number",
+            value = state.phoneNumber.takeIf { it?.isNotBlank() == true } ?: "",
             onValueChange = {
                     newPhoneNumber -> profileViewModel.onPhoneNumberChange(newPhoneNumber)
             },

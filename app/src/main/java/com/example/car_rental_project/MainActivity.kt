@@ -132,6 +132,7 @@ class MainActivity : ComponentActivity() {
                             )
                             // login with email and password
                             LaunchedEffect(authState.isSignInSuccessful) {
+                                authViewModel.onLoadFinished()
                                 userData = googleAuthService.getSignedInUser()
                                 if (authState.isSignInSuccessful) {
                                     navController.navigate("home")
@@ -141,7 +142,6 @@ class MainActivity : ComponentActivity() {
                                         Toast.LENGTH_LONG
                                     ).show()
                                 }
-                                authViewModel.onLoadFinished()
                             }
 
                             LoginScreen(
@@ -166,7 +166,17 @@ class MainActivity : ComponentActivity() {
                                                 email,
                                                 password
                                             )
-                                        authViewModel.onSignInResult(signInResult)
+                                        if(signInResult.data != null) {
+                                            authViewModel.onSignInResult(signInResult)
+                                        }
+                                        else {
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Email or Password are wrong",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            authViewModel.resetState()
+                                        }
                                     }
                                 },
                                 onToCreateAccountScreen = {
@@ -188,7 +198,7 @@ class MainActivity : ComponentActivity() {
                                             authViewModel.onSignInResult(signInResult)
                                         }
                                     } else {
-                                        Log.d("onResult", "ActivityResult: " + result.toString())
+                                        Log.d("onResult", "intentResult: " + result.toString())
                                     }
                                 }
                             )
@@ -200,7 +210,7 @@ class MainActivity : ComponentActivity() {
                                         Toast.LENGTH_LONG
                                     ).show()
                                     navController.navigate("home")
-                                    // authViewModel.resetState()
+                                     authViewModel.resetState()
                                 }
                                 authViewModel.onLoadFinished()
                             }
@@ -336,6 +346,7 @@ class MainActivity : ComponentActivity() {
                                         )
                                         val createCarPostResult = carRepository.createCarPost(
                                             userId = userData?.userId,
+                                            sellerName = userData?.username,
                                             carModel = carModel,
                                             images = carPostState.images ?: emptyList(),
                                             contextResolver = contentResolver
@@ -345,7 +356,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
-
                         composable("carPostDetails/{id}",
                             arguments = listOf(
                                 navArgument("id") {
@@ -355,6 +365,7 @@ class MainActivity : ComponentActivity() {
                         ) {
                             carData?.let {
                                 CarPostDetailScreen(
+                                    authUser = userData,
                                     navController = navController,
                                     carData = it,
                                     createTransaction = {
@@ -364,17 +375,15 @@ class MainActivity : ComponentActivity() {
                                                     postCarId = it.id,
                                                     buyerId = userData?.userId,
                                                     buyerName = userData?.username,
+                                                    sellerName = it.sellerName,
                                                     sellerId = it.userId,
-                                                    title = it.title,
-                                                    brand = it.brand,
-                                                    model = it.model,
-                                                    price = it.price
+                                                    carPost = it
                                                 )
                                             )
                                             if (result.data != null) {
                                                 Toast.makeText(
                                                     applicationContext,
-                                                    "Transaction succesfuly created",
+                                                    "Transaction successfuly created",
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                                 navController.navigate("transaction")
@@ -421,11 +430,17 @@ class MainActivity : ComponentActivity() {
 
                         composable("invoice")
                         {
+                            LaunchedEffect(key1 = transactionData) {
+                                transactionRepository.getAllTransaction().collect { transaction ->
+                                    transactionData = transaction
+                                }
+                            }
                             BottomNavigation(
                                 navController = navController,
                                 navViewModel = navViewModel
                             )
-                            InvoiceScreen()
+                            InvoiceScreen(transactionData, userData)
+
                         }
 
                         composable("editUserProfile") {
@@ -477,8 +492,7 @@ class MainActivity : ComponentActivity() {
 
                         composable("userCarPosts") {
 
-                            val userCarPostsState =
-                                remember { MutableStateFlow<List<CarModel>>(emptyList()) }
+                            val userCarPostsState = remember { MutableStateFlow<List<CarModel>>(emptyList()) }
 
                             LaunchedEffect(userData) {
                                 if (userData != null) {
@@ -515,8 +529,19 @@ class MainActivity : ComponentActivity() {
                                 deletePost = { id ->
                                     lifecycleScope.launch {
                                         val isDeletionSuccess = carRepository.deleteCarPost(id)
-                                        if (isDeletionSuccess) {
-                                            navController.navigate("profile")
+                                        if(isDeletionSuccess) {
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Car Post successfuly deleted",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                        else {
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Car post failed to be deleted",
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                         }
                                     }
                                 }
@@ -542,20 +567,21 @@ class MainActivity : ComponentActivity() {
                                     transactionData = transactionData,
                                     rejectTransaction = { transaction ->
                                         lifecycleScope.launch {
-                                            val result = transactionRepository.updateTransaction(TransactionStatus.CANCELLED, transaction)
-
-                                            if(result.data != null) {
+                                            val result = transactionRepository.deleteTransaction(transaction.id ?: "")
+                                            if(result) {
                                                 Toast.makeText(
                                                     applicationContext,
                                                     "Transaction Success",
                                                     Toast.LENGTH_LONG
                                                 ).show()
-                                                navController.navigate("home")
+                                                transactionRepository.getAllTransaction().collect { transaction ->
+                                                    transactionData = transaction
+                                                }
                                             }
                                             else {
                                                 Toast.makeText(
                                                     applicationContext,
-                                                    result.errorMessage,
+                                                    "Some Thing When Wrong.. .",
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                             }
@@ -570,7 +596,20 @@ class MainActivity : ComponentActivity() {
                                                     "Transaction Success",
                                                     Toast.LENGTH_LONG
                                                 ).show()
-                                                navController.navigate("home")
+                                                carRepository.deleteCarPost(transaction.carPost?.id ?: "")
+                                                val updateUserMoney = userData?.copy(
+                                                    money = (userData?.money ?: 0) + (transaction.carPost?.price ?: 0)
+                                                )
+                                                if (updateUserMoney != null) {
+                                                    googleAuthService.editUserProfile(
+                                                        updatedUser = updateUserMoney,
+                                                        image = null,
+                                                        contextResolver = contentResolver
+                                                    )
+                                                }
+                                                transactionRepository.getAllTransaction().collect { transaction ->
+                                                    transactionData = transaction
+                                                }
                                             }
                                             else {
                                                 Toast.makeText(

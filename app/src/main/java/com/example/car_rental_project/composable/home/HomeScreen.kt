@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -103,16 +106,16 @@ fun HomeScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            LazyColumn(
+            LazyVerticalGrid(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp)
                     .weight(1f),
+                columns = GridCells.Fixed(1),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(items = carList) { car ->
+                itemsIndexed(items = carList) { index, car ->
                     CarCard(car) {
                         navigateToCarPostDetails(car.id ?: "")
                     }

@@ -12,11 +12,11 @@ interface CarPostDao {
     fun getAllCarPosts(): Flow<List<CarModel>>
     suspend fun getCarPostById(id : String) : CarPostModel
     suspend fun createCarPost(userId: String?,
+                              sellerName : String?,
                               carModel : CarModel,
                               images: List<Uri> = emptyList(),
                               contextResolver: ContentResolver
     ) : CarPostModel
-
     suspend fun getUserCarPosts(user : UserEntity?) : Flow<List<CarModel>>?
     suspend fun deleteCarPost(id : String) : Boolean
     suspend fun editCarPost(id : String, updatedCar: CarModel) : CarModel

@@ -12,14 +12,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +40,7 @@ import com.example.car_rental_project.model.CarModel
 import com.example.car_rental_project.repository.CarPostRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserCarPostScreen(
     carList : List<CarModel>?,
@@ -43,20 +49,23 @@ fun UserCarPostScreen(
 ) {
 
     Column {
-        Text(text = "Your Post")
-        LazyColumn(
+        TopAppBar(
+            title = { Text(text = "Transaction") },
+        )
+
+        LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
+            columns = GridCells.Fixed(1),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if(carList != null) {
-                items(items = carList) { car ->
+                itemsIndexed(items = carList) { index, car ->
                     Column {
                         Box {
-                            CloseButton {
+                            DeleteButton {
                                 deletePost(car.id ?: "")
                             }
                             CarCard(car) {
@@ -71,8 +80,7 @@ fun UserCarPostScreen(
 }
 
 @Composable
-fun CloseButton(onClick: () -> Unit) {
-    // You can customize the appearance of the "X" button as needed
+fun DeleteButton(onClick: () -> Unit) {
     Icon(
         imageVector = Icons.Filled.Delete,
         contentDescription = "Close",

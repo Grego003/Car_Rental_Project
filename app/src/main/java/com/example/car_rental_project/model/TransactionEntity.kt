@@ -16,9 +16,6 @@ data class TransactionEntity(
     val sellerId : String ? = "",
     val buyerName : String ? = "",
     val sellerName : String ? = "",
-    val title : String? = "",
-    val brand: String? = "",
-    val model: String? = "",
-    val price: Int? = 0,
+    val carPost : CarModel ? = null,
     val status : TransactionStatus ?= TransactionStatus.WAITING,
 )

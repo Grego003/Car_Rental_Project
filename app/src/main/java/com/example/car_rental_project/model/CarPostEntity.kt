@@ -42,6 +42,7 @@ enum class EngineCapasity(@SerializedName("engineCapasity") val displayName: Str
 data class CarModel(
     val id: String? = "",
     val userId : String ? = "",
+    val sellerName : String ? = "",
     val title : String? = "",
     val brand: String? = "",
     val model: String? = "",
