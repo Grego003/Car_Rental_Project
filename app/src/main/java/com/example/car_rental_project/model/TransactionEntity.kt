@@ -4,9 +4,9 @@ import com.google.gson.annotations.SerializedName
 
 
 enum class TransactionStatus(@SerializedName("transactionStatus") val displayName: String) {
-    FINISHED("Bensin"),
-    CANCELLED("Diesel"),
-    WAITING("Hybrid"),
+    FINISHED("FINISHED"),
+    CANCELLED("CANCELLED"),
+    WAITING("WAITING"),
 }
 
 data class TransactionEntity(

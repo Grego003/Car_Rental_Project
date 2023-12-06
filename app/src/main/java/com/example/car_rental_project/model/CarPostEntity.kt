@@ -58,7 +58,7 @@ data class CarModel(
     val images : List<String>? = listOf(""),
     val engineCapasity : EngineCapasity? = EngineCapasity.CC_1000_TO_1500,
     val description : String? = "",
-    val price : Int? = 0,
+    val price : Long? = 0,
     val isPremiumPost : Boolean? = false,
     val legalRequirements : Boolean ? = false,
 )

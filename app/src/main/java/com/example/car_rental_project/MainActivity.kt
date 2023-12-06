@@ -65,6 +65,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.math.BigInteger
 import java.time.Year
 
 class MainActivity : ComponentActivity() {
@@ -341,7 +342,7 @@ class MainActivity : ComponentActivity() {
                                             category = carPostState.category,
                                             engineCapasity = carPostState.engineCapasity,
                                             description = carPostState.description,
-                                            price = carPostState.price?.toInt() ?: 0,
+                                            price = carPostState.price?.toLong() ?: 0,
                                             legalRequirements = true
                                         )
                                         val createCarPostResult = carRepository.createCarPost(
@@ -597,6 +598,9 @@ class MainActivity : ComponentActivity() {
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                                 carRepository.deleteCarPost(transaction.carPost?.id ?: "")
+//                                                    carRepository.getAllCarPosts().collect { car ->
+//                                                        carsData = car
+//                                                    }
                                                 val updateUserMoney = userData?.copy(
                                                     money = (userData?.money ?: 0) + (transaction.carPost?.price ?: 0)
                                                 )
