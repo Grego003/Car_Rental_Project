@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -58,6 +59,8 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.rememberUpdatedState
+import com.example.car_rental_project.model.UserEntity
+import com.example.car_rental_project.model.UserModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -85,7 +88,10 @@ fun CreateCarPostScreen(
             CreateCarPostForm(state = state, carViewModel = carViewModel)
 
             Button(
-                onClick = { storeToDatabase() },
+                onClick =
+                {
+                    storeToDatabase()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp)
@@ -466,5 +472,7 @@ fun priceNumberInput(
         label = { Text(text = "price") },
     )
 }
+
+
 
 

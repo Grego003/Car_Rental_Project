@@ -273,9 +273,12 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate("login")
                                     }
                                 },
-                                carList = carsData ?: emptyList(),
+                                carList = carsData?.reversed() ?: emptyList(),
                                 navigateToCreateCarPost = {
                                     navController.navigate("createCarPost")
+                                },
+                                navigateToProfile = {
+                                    navController.navigate("profile")
                                 },
                                 navigateToCarPostDetails = { carId: String ->
                                     lifecycleScope.launch {
@@ -284,7 +287,7 @@ class MainActivity : ComponentActivity() {
                                             if (result.data == null) {
                                                 Toast.makeText(
                                                     applicationContext,
-                                                    "Car Id Not Found",
+                                                    result.errorMessage,
                                                     Toast.LENGTH_LONG
                                                 ).show()
                                                 navController.navigate("home")
@@ -343,6 +346,7 @@ class MainActivity : ComponentActivity() {
                                             engineCapasity = carPostState.engineCapasity,
                                             description = carPostState.description,
                                             price = carPostState.price?.toLong() ?: 0,
+                                            isPremiumPost = userData?.premium,
                                             legalRequirements = true
                                         )
                                         val createCarPostResult = carRepository.createCarPost(

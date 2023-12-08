@@ -24,12 +24,17 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +59,10 @@ fun HomeScreen(
     carList: List<CarModel>,
     navigateToCreateCarPost: () -> Unit,
     navigateToCarPostDetails: (carId: String) -> Unit,
+    navigateToProfile : ()->Unit,
 ) {
+    var isDialogVisible by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -128,7 +136,14 @@ fun HomeScreen(
                 .padding(16.dp)
                 .padding(bottom = 72.dp)
                 .align(Alignment.End),
-            onClick = { navigateToCreateCarPost() }
+            onClick =
+            {
+                if(userData?.phoneNumber.isNullOrEmpty()) {
+                    isDialogVisible = true
+                } else {
+                    navigateToCreateCarPost()
+                }
+            }
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -141,7 +156,44 @@ fun HomeScreen(
                 Text("Add Post")
             }
         }
+
+        if (isDialogVisible) {
+            GoUpdateProfileDialog(
+                onConfirm = {
+                    isDialogVisible = false
+                    navigateToProfile()
+                },
+                onCancel = { isDialogVisible = false }
+            )
+        }
     }
+
+}
+@Composable
+fun GoUpdateProfileDialog(
+    onConfirm: () -> Unit,
+    onCancel: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onCancel,
+        title = {
+            Text("Update your phone number first")
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm
+            ) {
+                Text("update")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onCancel
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 @Composable
@@ -202,5 +254,5 @@ fun HomeScreenReview() {
     )
 
 
-    HomeScreen(dummyUserData, onSignOut = {}, carList, {}, {})
+    HomeScreen(dummyUserData, onSignOut = {}, carList, {}, {}, {})
 }
