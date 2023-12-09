@@ -5,7 +5,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +22,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -57,11 +61,15 @@ import com.example.car_rental_project.model.FuelType
 import com.example.car_rental_project.view_model.NavViewModel
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.window.Dialog
 import com.example.car_rental_project.model.UserEntity
 import com.example.car_rental_project.model.UserModel
 import java.time.LocalDate
+import java.time.Year
 import java.time.format.DateTimeFormatter
 
 
@@ -130,7 +138,7 @@ fun CreateCarPostForm(
             Spacer(modifier = Modifier.height(8.dp))
             ConditionDropDownMenu(condition = state.condition ?: CarCondition.BEKAS, carViewModel = carViewModel)
             Spacer(modifier = Modifier.height(8.dp))
-            YearCreatedPicker()
+            YearDropdownMenu(selectedYear = state.yearBought.toString(),carViewModel)
             Spacer(modifier = Modifier.height(8.dp))
             FuelTypeDropDownMenu(fuelType = state.fuelType?: FuelType.BENSIN, carViewModel = carViewModel)
             Spacer(modifier = Modifier.height(8.dp))
@@ -255,6 +263,51 @@ fun YearCreatedPicker() {
             title = { Text("Pick a Date") },
             showModeToggle = true,
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun YearDropdownMenu(selectedYear: String, carViewModel: CarViewModel, modifier: Modifier = Modifier) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {
+            expanded = !expanded
+        },
+        modifier = modifier
+    ) {
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
+            readOnly = true,
+            value = selectedYear,
+            onValueChange = { /* Handle value change if needed */ },
+            label = { Text("Selected Year") },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded
+                )
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            // Populate the dropdown menu items as needed
+            (1900..Year.now().value).forEach { year ->
+                DropdownMenuItem(
+                    text = { Text(text = year.toString()) },
+                    onClick = {
+                        carViewModel.onYearBoughtChange(Year.parse(year.toString()))
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
 

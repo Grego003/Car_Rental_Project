@@ -339,14 +339,15 @@ class MainActivity : ComponentActivity() {
                                             brand = carPostState.brand,
                                             model = carPostState.model,
                                             condition = carPostState.condition,
-                                            yearBought = Year.of(2023).toString(),
+                                            phoneNumber = userData?.phoneNumber,
+                                            yearBought = carPostState.yearBought.toString(),
                                             fuelType = carPostState.fuelType,
                                             odometer = carPostState.odometer?.toInt() ?: 0,
                                             category = carPostState.category,
                                             engineCapasity = carPostState.engineCapasity,
                                             description = carPostState.description,
                                             price = carPostState.price?.toLong() ?: 0,
-                                            isPremiumPost = userData?.premium,
+                                            premiumPost = userData?.premium,
                                             legalRequirements = true
                                         )
                                         val createCarPostResult = carRepository.createCarPost(

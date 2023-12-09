@@ -28,9 +28,16 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,8 +57,46 @@ import coil.compose.AsyncImage
 import com.example.car_rental_project.R
 import com.example.car_rental_project.model.CarModel
 import com.example.car_rental_project.model.UserEntity
-
 //Todo Rapihin ama buat design nya (dipecah pecah kaya login)
+
+@Composable
+fun TabBar(
+    selectedTabIndex : Int,
+    onChangeTab : (index : Int) -> Unit,
+) {
+        Column {
+            // Secondary Tab Row
+            SecondaryTabRow(
+                selectedTabIndex = selectedTabIndex,
+                modifier = Modifier.fillMaxWidth(),
+                indicator = { tabPositions ->
+                    TabRowDefaults.SecondaryIndicator(
+                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                        color = Color.Black
+                    )
+                }
+            ) {
+                Tab(
+                    selected = selectedTabIndex == 0,
+                    selectedContentColor = Color.Black,
+                    onClick = { onChangeTab(0) } ,
+                    text = {
+                        Text("Normal")
+                    }
+                )
+
+                Tab(
+                    selected = selectedTabIndex == 1,
+                    selectedContentColor = Color.Black,
+                    onClick = { onChangeTab(1) },
+                    text = {
+                        Text("Premium")
+                    }
+                )
+            }
+        }
+    }
+
 @Composable
 fun HomeScreen(
     userData: UserEntity?,
@@ -62,6 +107,15 @@ fun HomeScreen(
     navigateToProfile : ()->Unit,
 ) {
     var isDialogVisible by remember { mutableStateOf(false) }
+    var filteredCarList by remember { mutableStateOf(carList) }
+    var searchFilter by remember { mutableStateOf("")}
+    var selectedTabIndex by remember { mutableStateOf(0)}
+
+    LaunchedEffect(carList){
+        filteredCarList = carList.filter {
+            it.premiumPost != true
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
@@ -92,8 +146,18 @@ fun HomeScreen(
             )
         }
         TextField(
-            value = "",
-            onValueChange = { /* Handle search input change */ },
+            value = searchFilter,
+            onValueChange = {
+                    newFilter -> searchFilter = newFilter
+                    filteredCarList = carList.filter { car ->
+                        val matchesTab = if (selectedTabIndex == 0) {
+                            car.premiumPost != true
+                        } else {
+                            car.premiumPost == true
+                        }
+                        val matchesSearch = car.title?.contains(searchFilter, ignoreCase = true) ?: false
+                        matchesTab && matchesSearch
+                }},
             modifier = Modifier
                 .weight(0.15f)
                 .fillMaxWidth(),
@@ -105,9 +169,21 @@ fun HomeScreen(
             ),
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    // Handle search action
                 }
             ),
+        )
+        TabBar(
+            selectedTabIndex = selectedTabIndex,
+            onChangeTab = { newTabIndex ->
+                selectedTabIndex = newTabIndex
+                filteredCarList = carList.filter {
+                    if (newTabIndex == 0) {
+                        it.premiumPost != true
+                    } else {
+                        it.premiumPost == true
+                    }
+                }
+            }
         )
         Row(
             modifier = Modifier
@@ -123,7 +199,7 @@ fun HomeScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                itemsIndexed(items = carList) { index, car ->
+                itemsIndexed(items = filteredCarList) { index, car ->
                     CarCard(car) {
                         navigateToCarPostDetails(car.id ?: "")
                     }

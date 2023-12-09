@@ -142,6 +142,7 @@ fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : User
             CarDetailItem(Icons.Default.Info, "Condition", carData.condition?.displayName ?: "")
             CarDetailItem(Icons.Default.Info, "Fuel Type", carData.fuelType?.displayName ?: "")
             CarDetailItem(Icons.Default.Info, "Engine Capacity", carData.engineCapasity?.displayName ?: "")
+            CarDetailItem(Icons.Default.Info, "Phone Number", carData.phoneNumber.toString() )
             CarDetailItem(Icons.Default.Info, "Odometer", "${carData.odometer} km")
             CarDetailItem(Icons.Default.Info, "Price", "$${carData.price}")
             CarDetailItem(Icons.Default.Info, "Year Bought", carData.yearBought ?: "")

@@ -43,6 +43,7 @@ data class CarModel(
     val id: String? = "",
     val userId : String ? = "",
     val sellerName : String ? = "",
+    val phoneNumber : String ? = "",
     val title : String? = "",
     val brand: String? = "",
     val model: String? = "",
@@ -59,7 +60,7 @@ data class CarModel(
     val engineCapasity : EngineCapasity? = EngineCapasity.CC_1000_TO_1500,
     val description : String? = "",
     val price : Long? = 0,
-    val isPremiumPost : Boolean? = false,
+    val premiumPost : Boolean? = false,
     val legalRequirements : Boolean ? = false,
 )
 
