@@ -10,9 +10,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +35,13 @@ import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.example.car_rental_project.composable.home.formatPrice
 import com.example.car_rental_project.model.UserEntity
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun CarPostDetailScreen(
@@ -39,7 +49,7 @@ fun CarPostDetailScreen(
     navController: NavController,
     carData: CarModel,
     createTransaction : () -> Unit,
-    ) {
+) {
     BackHandler {
         navController.popBackStack()
     }
@@ -48,18 +58,34 @@ fun CarPostDetailScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Car Title
-        Text(
-            text = carData.title ?: "",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = {
+                    navController.popBackStack()
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.Black
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = carData.title ?: "",
+                style = MaterialTheme.typography.titleLarge,
+            )
+        }
 
-        // Car Image
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = Color.Blue)
+                .background(color = MaterialTheme.colorScheme.onBackground)
         ) {
             LazyRow {
                 items(carData.images ?: emptyList()) { image ->
@@ -76,10 +102,11 @@ fun CarPostDetailScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Car Details
         CarDetails(carData, createTransaction, authUser)
     }
+
 }
+
 
 @Composable
 fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : UserEntity?) {
@@ -88,22 +115,34 @@ fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : User
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = carData.brand ?: "")
-                Text(text = carData.model ?: "")
-
-//                Text(text=carData.model ?: "NO MODEL")
-////                CarDetailItem(Icons.Default.Info, carData.model ?: "")
-////                CarDetailItem(Icons.Default.Info, carData.yearBought.toString() ?: "")
+                Column {
+                    Text(text = carData.brand ?: "", style = TextStyle(Color.Black, fontSize = 24.sp).copy(fontWeight = FontWeight.Bold))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = carData.model ?: "", style = TextStyle(Color.Black, fontSize = 24.sp).copy(fontWeight = FontWeight.Medium))
+                }
+                Box(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(8.dp)
+                ) {
+                    Text(
+                        text = "Rp ${formatPrice(carData.price)}",
+                        style = MaterialTheme.typography.titleMedium
+                            .copy(fontWeight = FontWeight.Bold)
+                            .copy(Color.White),
+                        modifier = Modifier
+                            .padding(8.dp)
+                    )
+                }
             }
         }
         item {
             HorizontalDivider(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
+                    .fillMaxWidth(),
                 thickness = 1.dp,
                 color = Color.Gray
             )
@@ -121,7 +160,6 @@ fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : User
             )
         }
         item {
-            // Divider
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -130,22 +168,23 @@ fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : User
                 color = Color.Gray
             )
         }
+
         item {
-            // Additional Details
             Text(
-                text = "Additional Details",
+                text = "Specifications",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(8.dp)
             )
 
-            CarDetailItem(Icons.Default.Info, "Category", carData.category?.displayName ?: "")
-            CarDetailItem(Icons.Default.Info, "Condition", carData.condition?.displayName ?: "")
-            CarDetailItem(Icons.Default.Info, "Fuel Type", carData.fuelType?.displayName ?: "")
-            CarDetailItem(Icons.Default.Info, "Engine Capacity", carData.engineCapasity?.displayName ?: "")
-            CarDetailItem(Icons.Default.Info, "Phone Number", carData.phoneNumber.toString() )
-            CarDetailItem(Icons.Default.Info, "Odometer", "${carData.odometer} km")
-            CarDetailItem(Icons.Default.Info, "Price", "$${carData.price}")
-            CarDetailItem(Icons.Default.Info, "Year Bought", carData.yearBought ?: "")
+            CarDetailItem(Icons.Outlined.Info, "Category: ", carData.category?.displayName ?: "")
+            CarDetailItem(Icons.Outlined.Info, "Condition: ", carData.condition?.displayName ?: "")
+            CarDetailItem(Icons.Outlined.Info, "Fuel Type: ", carData.fuelType?.displayName ?: "")
+            CarDetailItem(Icons.Outlined.Info, "Engine Capacity: ", carData.engineCapasity?.displayName ?: "")
+            CarDetailItem(Icons.Outlined.Info, "Odometer: ", "${carData.odometer} km")
+            CarDetailItem(Icons.Outlined.Info, "Year Bought: ", carData.yearBought ?: "")
+        }
+
+        item{
             if(carData.userId != authUser?.userId) {
                 ButtonList(createTransaction = createTransaction)
             }
@@ -169,51 +208,59 @@ fun CarDetailItem(icon: ImageVector, label: String, value: String) {
     }
 }
 @Composable
-fun ButtonList(createTransaction : ()-> Unit) {
+fun ButtonList(createTransaction: () -> Unit) {
     var isDialogVisible by remember { mutableStateOf(false) }
-    Box(
+
+    Row(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .padding(16.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .align(Alignment.BottomCenter)
+                .weight(1f)
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
+            FloatingActionButton(
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .fillMaxWidth(),
                 onClick = { isDialogVisible = true },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
             ) {
-                Text("Buy Now")
+                Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
             }
+            Text("Buy Now", style = MaterialTheme.typography.titleMedium)
+        }
 
-            Button(
-                onClick = { /* Handle button click */ },
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            FloatingActionButton(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp)
+                    .padding(bottom = 8.dp)
+                    .fillMaxWidth(),
+                onClick = { /* Ayo Grego Whatsapp :) */ },
             ) {
-                Text("WhatsApp")
+                Icon(imageVector = Icons.Default.Phone, contentDescription = null)
             }
+            Text("WhatsApp", style = MaterialTheme.typography.titleMedium)
+        }
 
-            if (isDialogVisible) {
-                BuyConfirmationDialog(
-                    onConfirm = {
-                        createTransaction.invoke()
-                        isDialogVisible = false
-                    },
-                    onCancel = { isDialogVisible = false }
-                )
-            }
-
+        if (isDialogVisible) {
+            BuyConfirmationDialog(
+                onConfirm = {
+                    createTransaction.invoke()
+                    isDialogVisible = false
+                },
+                onCancel = { isDialogVisible = false }
+            )
         }
     }
 }
-
-
 
 @Composable
 fun BuyConfirmationDialog(
@@ -233,26 +280,14 @@ fun BuyConfirmationDialog(
             }
         },
         dismissButton = {
-            Button(
+            OutlinedButton(
                 onClick = onCancel
             ) {
-                Text("Cancel")
+                Text(
+                    text = "Cancel",
+                    color = Color.Black,
+                )
             }
         }
     )
-}
-
-@Composable
-fun CarDetailItem(icon: ImageVector, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp))
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = value, style = MaterialTheme.typography.bodySmall)
-    }
 }

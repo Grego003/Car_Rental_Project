@@ -1,24 +1,31 @@
 package com.example.car_rental_project.composable.transaction
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -33,8 +40,17 @@ import com.example.car_rental_project.model.UserEntity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.example.car_rental_project.composable.home.formatPrice
 import com.example.car_rental_project.model.CarModel
 import com.example.car_rental_project.model.TransactionStatus
 import com.google.gson.annotations.SerializedName
@@ -94,8 +110,9 @@ fun TransactionScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = Color.Green)
+                .background(color = MaterialTheme.colorScheme.background)
         ) {
+
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 contentPadding = PaddingValues(16.dp),
@@ -104,47 +121,129 @@ fun TransactionScreen(
                 if (topBarState == TransactionType.BUYER) {
                     itemsIndexed(items = buyerTransactionList.orEmpty()) { index, transaction ->
                         Column {
-                            TransactionCard(transaction = transaction)
-                            Button(
-                                modifier = Modifier.fillMaxWidth(),
-                                onClick = { rejectTransaction(transaction) }
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp)
+                                    .padding(horizontal = 8.dp)
                             ) {
-                                Text(text = "Cancel")
+                                TransactionCard(transaction = transaction)
+                                Button(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                        .padding(horizontal = 8.dp),
+                                    onClick = { rejectTransaction(transaction) },
+                                ) {
+                                    Text(text = "Cancel")
+                                }
                             }
                         }
                     }
                 } else {
                     itemsIndexed(items = sellerTransactionList.orEmpty()) { index, transaction ->
                         Column {
-                            TransactionCard(transaction = transaction)
-                            Button(
-                                modifier = Modifier.fillMaxWidth(),
-                                onClick = { acceptTransaction(transaction) }
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
                             ) {
-                                Text(text = "Approved")
-                            }
-                            Button(
-                                modifier = Modifier.fillMaxWidth(),
-                                onClick = { rejectTransaction(transaction) }
-                            ) {
-                                Text(text = "Cancel")
+                                TransactionCard(transaction = transaction)
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Button(
+                                        modifier = Modifier
+                                            .weight(1f),
+                                        onClick = { acceptTransaction(transaction) }
+                                    ) {
+                                        Text(text = "Accept")
+                                    }
+                                    OutlinedButton(
+                                        modifier = Modifier
+                                            .weight(1f),
+                                        onClick = { rejectTransaction(transaction) }
+                                    ) {
+                                        Text(text = "Reject")
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(80.dp))
+
         }
     }
 }
-
 @Composable
 fun TransactionCard(transaction: TransactionEntity) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = RoundedCornerShape(16.dp),
     ) {
-        Text("Title: ${transaction.carPost?.title}")
-        Text("Buyer: ${transaction.buyerName}")
-        Text(text = "Price: ${transaction.carPost?.price}")
-        Text(text = "Status: ${transaction.status}")
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+        ) {
+            val painter = rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current)
+                    .data(transaction.carPost?.images?.firstOrNull())
+                    .build()
+            )
+            Image(
+                painter = painter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(
+                    text = transaction.carPost?.title.orEmpty(),
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Buyer: ${transaction.buyerName}",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Price: Rp ${formatPrice(transaction.carPost?.price)}",
+                    style = TextStyle(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Status: ${transaction.status}",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                )
+            }
+        }
     }
 }

@@ -65,13 +65,13 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.car_rental_project.model.UserEntity
 import com.example.car_rental_project.model.UserModel
 import java.time.LocalDate
 import java.time.Year
 import java.time.format.DateTimeFormatter
-
 
 @Composable
 fun CreateCarPostScreen(
@@ -130,6 +130,8 @@ fun CreateCarPostForm(
                 .fillMaxWidth()
                 .padding(bottom = 16.dp)
         )
+            PhotoPicker(carViewModel = carViewModel, state = state )
+            Spacer(modifier = Modifier.height(8.dp))
             TitleTextInput(title = state.title, carViewModel =carViewModel)
             Spacer(modifier = Modifier.height(8.dp))
             BrandTextInput(brand = state.brand, carViewModel = carViewModel)
@@ -145,8 +147,6 @@ fun CreateCarPostForm(
             OdometerNumberInput(odometer = state.odometer, carViewModel = carViewModel )
             Spacer(modifier = Modifier.height(8.dp))
             CategoryDropDownMenu(category = state.category?: CarCategory.CLASSIC_CAR, carViewModel =  carViewModel)
-            Spacer(modifier = Modifier.height(8.dp))
-            PhotoPicker(carViewModel = carViewModel, state = state )
             Spacer(modifier = Modifier.height(8.dp))
             engineCapasityDropDownMenu(engineCapasity = state.engineCapasity?: EngineCapasity.CC_1000_TO_1500, carViewModel = carViewModel)
             Spacer(modifier = Modifier.height(8.dp))
@@ -200,7 +200,7 @@ fun ModelTextInput(
         ,
         value = model.orEmpty(),
         onValueChange = { newModel -> carViewModel.onModelChange(newModel) },
-        label = { Text(text = "model") }
+        label = { Text(text = "Model") }
     )
 }
 
@@ -246,25 +246,6 @@ fun ConditionDropDownMenu(
         }
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun YearCreatedPicker() {
-    var expanded by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it }
-    ) {
-        DatePicker(
-            state = datePickerState,
-            modifier = Modifier.menuAnchor(),
-            dateFormatter = DatePickerDefaults.dateFormatter(),
-            title = { Text("Pick a Date") },
-            showModeToggle = true,
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -284,8 +265,8 @@ fun YearDropdownMenu(selectedYear: String, carViewModel: CarViewModel, modifier:
                 .menuAnchor(),
             readOnly = true,
             value = selectedYear,
-            onValueChange = { /* Handle value change if needed */ },
-            label = { Text("Selected Year") },
+            onValueChange = {},
+            label = { Text("Year") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
                     expanded = expanded
@@ -297,7 +278,6 @@ fun YearDropdownMenu(selectedYear: String, carViewModel: CarViewModel, modifier:
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            // Populate the dropdown menu items as needed
             (1900..Year.now().value).forEach { year ->
                 DropdownMenuItem(
                     text = { Text(text = year.toString()) },
@@ -331,7 +311,7 @@ fun FuelTypeDropDownMenu(
             readOnly = true,
             value = fuelType.displayName,
             onValueChange = { },
-            label = { Text("FuelType") },
+            label = { Text("Fuel Type") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
                     expanded = expanded
@@ -365,7 +345,7 @@ fun OdometerNumberInput(
             carViewModel.onOdometerChange(newOdometer)
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        label = { Text(text = "odometer") },
+        label = { Text(text = "Odometer") },
     )
 }
 
@@ -419,12 +399,6 @@ fun PhotoPicker(carViewModel: CarViewModel, state: CarPostState) {
         }
     )
     Column {
-        Text(
-            text = "Car Images",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
         Button(
             onClick = {
                 multiplePhotoPicker.launch(
@@ -443,11 +417,10 @@ fun PhotoPicker(carViewModel: CarViewModel, state: CarPostState) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(imageVector = Icons.Default.AddCircle, contentDescription = null)
-                Text("Pick Multiple Images", color = Color.White, style = MaterialTheme.typography.titleSmall)
+                Text("Pick Car Images", color = Color.White, style = MaterialTheme.typography.titleSmall)
             }
         }
 
-        // TODO: ALTERNATIF BIAR GAK PAKE LAZYCOLUMN ADA GAK? TABRAKAN SAMA PARENTNYA SOALNYA
         LazyRow {
             items(state.images ?: emptyList()) { image ->
                 AsyncImage(model = image, contentDescription = null, modifier = Modifier.size(248.dp))
@@ -475,7 +448,7 @@ fun engineCapasityDropDownMenu(
             readOnly = true,
             value = engineCapasity.displayName,
             onValueChange = { },
-            label = { Text("engineCapasity") },
+            label = { Text("Engine Capacity") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
                     expanded = expanded
@@ -499,14 +472,16 @@ fun engineCapasityDropDownMenu(
 fun descriptionTextInput(
     description: String?,
     modifier: Modifier = Modifier,
-    carViewModel: CarViewModel)
-{
+    carViewModel: CarViewModel
+) {
     TextField(
         modifier = modifier
             .fillMaxWidth(),
         value = description.orEmpty(),
         onValueChange = { newDescription -> carViewModel.onDescriptionChange(newDescription) },
-        label = { Text(text = "Description") }
+        label = { Text(text = "Description") },
+        maxLines = 3,
+        textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
     )
 }
 
@@ -522,10 +497,6 @@ fun priceNumberInput(
         value = price.toString(),
         onValueChange = { newPrice -> carViewModel.onPriceChange(newPrice) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        label = { Text(text = "price") },
+        label = { Text(text = "Price (in Rupiah)") },
     )
 }
-
-
-
-

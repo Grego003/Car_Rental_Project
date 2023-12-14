@@ -31,7 +31,7 @@ sealed class BottomNavItem(
         unSelectedIcon = Icons.Default.Home,
         false,
         null,
-        "home"
+        "Home"
     )
     object Profile : BottomNavItem(
             title = "Profile",
@@ -39,15 +39,15 @@ sealed class BottomNavItem(
             unSelectedIcon = Icons.Default.Face,
             false,
             null,
-            "profile"
+            "Profile"
     )
     object AddCarPost : BottomNavItem(
-        title = "transaction",
+        title = "Transaction",
         selectedIcon = Icons.TwoTone.ShoppingCart,
         unSelectedIcon = Icons.Default.ShoppingCart,
         false,
         null,
-        "transaction"
+        "Transaction"
     )
     object History: BottomNavItem(
         title = "Invoice",
@@ -55,7 +55,7 @@ sealed class BottomNavItem(
         unSelectedIcon = Icons.Default.Edit,
         false,
         null,
-        "invoice"
+        "Invoice"
     )
 }
 

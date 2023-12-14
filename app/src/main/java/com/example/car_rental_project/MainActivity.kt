@@ -257,7 +257,7 @@ class MainActivity : ComponentActivity() {
                             }
                             BottomNavigation(
                                 navController = navController,
-                                navViewModel = navViewModel
+                                navViewModel = navViewModel,
                             )
                             HomeScreen(
                                 userData = userData,
@@ -408,7 +408,7 @@ class MainActivity : ComponentActivity() {
                         composable("profile") {
                             BottomNavigation(
                                 navController = navController,
-                                navViewModel = navViewModel
+                                navViewModel = navViewModel,
                             )
                             ProfileScreen(
                                 user = userData,
@@ -443,7 +443,7 @@ class MainActivity : ComponentActivity() {
                             }
                             BottomNavigation(
                                 navController = navController,
-                                navViewModel = navViewModel
+                                navViewModel = navViewModel,
                             )
                             InvoiceScreen(transactionData, userData)
 
@@ -566,7 +566,7 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 BottomNavigation(
                                     navController = navController,
-                                    navViewModel = navViewModel
+                                    navViewModel = navViewModel,
                                 )
                                 TransactionScreen(
                                     authUser = userData,

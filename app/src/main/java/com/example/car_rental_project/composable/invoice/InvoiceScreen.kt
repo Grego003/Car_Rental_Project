@@ -5,14 +5,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -23,8 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.car_rental_project.composable.transaction.TransactionCard
+import androidx.compose.ui.unit.sp
+import com.example.car_rental_project.composable.home.formatPrice
 import com.example.car_rental_project.composable.transaction.TransactionType
 import com.example.car_rental_project.model.TransactionEntity
 import com.example.car_rental_project.model.TransactionStatus
@@ -43,45 +49,75 @@ fun InvoiceScreen(
             (it.sellerId == authUser?.userId || it.buyerId == authUser?.userId) && it.status == TransactionStatus.FINISHED
         }
     }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         TopAppBar(
-            title = { Text(text = "Invoice")} )
-        Row(
+            title = { Text(text = "Invoice") },
+        )
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(1),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(color = Color.Green)
+                .weight(1f),
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(1),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                itemsIndexed(items = completedTransaction.orEmpty()) { index, transaction ->
-                    Column {
-                        InvoiceCard(userId = authUser?.userId ?: "", transaction = transaction)
-                    }
+            itemsIndexed(items = completedTransaction.orEmpty()) { index, transaction ->
+                Column {
+                    InvoiceCard(userId = authUser?.userId ?: "", transaction = transaction)
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(80.dp))
     }
 }
+
 @Composable
-fun InvoiceCard(userId : String, transaction: TransactionEntity) {
+fun InvoiceCard(userId: String, transaction: TransactionEntity) {
     Card(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        if(userId == transaction.sellerId) {
-            Text(text = "Seller")
-            Text("Buyer: ${transaction.buyerName}")
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = if (userId == transaction.sellerId) "Seller" else "Buyer",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = if (userId == transaction.sellerId) Color.Green else Color.Black,
+            )
+
+            Text(
+                text = if (userId == transaction.sellerId) "Buyer: ${transaction.buyerName}" else "Seller: ${transaction.sellerName}",
+                color = MaterialTheme.colorScheme.secondary,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+
+            Text(
+                text = "${transaction.carPost?.title}",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Text(
+                text = "Rp ${formatPrice(transaction.carPost?.price)}",
+                color = MaterialTheme.colorScheme.secondary,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+
+            Text(
+                text = "Status: ${transaction.status}",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
-        else if(userId == transaction.buyerId) {
-            Text(text = "Buyer")
-            Text("Seller: ${transaction.sellerName}")
-        }
-        Text(text = "title : ${transaction.carPost?.title}")
-        Text(text = "Price: ${transaction.carPost?.price}")
-        Text(text = "Status: ${transaction.status}")
     }
 }

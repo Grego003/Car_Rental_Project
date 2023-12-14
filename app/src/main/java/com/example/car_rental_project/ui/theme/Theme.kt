@@ -23,13 +23,14 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF1976D2), // Dark Blue
-    secondary = Color(0xFF455A64), // Blue Grey
+    primary = Color(0xFF008577), // Teal
+    secondary = Color(0xFF424242), // Grey
     background = Color.White,
     surface = Color(0xFFF5F5F5), // Light Surface
     onPrimary = Color.White,
     onSecondary = Color.White,
 )
+
 
 @Composable
 fun Car_Rental_ProjectTheme(
