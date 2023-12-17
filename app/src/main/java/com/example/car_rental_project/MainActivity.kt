@@ -374,6 +374,10 @@ class MainActivity : ComponentActivity() {
                                     authUser = userData,
                                     navController = navController,
                                     carData = it,
+                                    context = applicationContext,
+                                    navigateToProfile = {
+                                        navController.navigate("profile")
+                                    },
                                     createTransaction = {
                                         lifecycleScope.launch {
                                             val result = transactionRepository.createTransaction(
@@ -406,6 +410,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("profile") {
+                            LaunchedEffect(key1 = userData) {
+                                userData = googleAuthService.getSignedInUser()
+                            }
                             BottomNavigation(
                                 navController = navController,
                                 navViewModel = navViewModel,

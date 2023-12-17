@@ -1,5 +1,8 @@
 package com.example.car_rental_project.composable.carpost
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.car_rental_project.model.CarModel
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.layout.ContentScale
@@ -38,6 +42,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
+import com.example.car_rental_project.composable.home.GoUpdateProfileDialog
 import com.example.car_rental_project.composable.home.formatPrice
 import com.example.car_rental_project.model.UserEntity
 import java.text.NumberFormat
@@ -48,7 +54,9 @@ fun CarPostDetailScreen(
     authUser : UserEntity?,
     navController: NavController,
     carData: CarModel,
+    context: Context,
     createTransaction : () -> Unit,
+    navigateToProfile : () -> Unit ,
 ) {
     BackHandler {
         navController.popBackStack()
@@ -102,13 +110,13 @@ fun CarPostDetailScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        CarDetails(carData, createTransaction, authUser)
+        CarDetails(carData, createTransaction, authUser, context, navigateToProfile)
     }
 
 }
 
 @Composable
-fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : UserEntity?) {
+fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : UserEntity?, context: Context, navigateToProfile: () -> Unit) {
     LazyColumn {
         item {
             Row(
@@ -185,7 +193,7 @@ fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : User
 
         item{
             if(carData.userId != authUser?.userId) {
-                ButtonList(createTransaction = createTransaction)
+                ButtonList(createTransaction = createTransaction, carData = carData, context = context, authUser = authUser, navigateToProfile = navigateToProfile)
             }
         }
     }
@@ -207,7 +215,7 @@ fun CarDetailItem(icon: ImageVector, label: String, value: String) {
     }
 }
 @Composable
-fun ButtonList(createTransaction: () -> Unit) {
+fun ButtonList(authUser: UserEntity?, createTransaction: () -> Unit, carData: CarModel, context: Context, navigateToProfile : () ->Unit) {
     var isDialogVisible by remember { mutableStateOf(false) }
 
     Row(
@@ -242,7 +250,7 @@ fun ButtonList(createTransaction: () -> Unit) {
                 modifier = Modifier
                     .padding(bottom = 8.dp)
                     .fillMaxWidth(),
-                onClick = { /* Ayo Grego Whatsapp :) */ },
+                onClick = { openWhatsApp(carData.phoneNumber ?: "", context) },
             ) {
                 Icon(imageVector = Icons.Default.Phone, contentDescription = null)
             }
@@ -250,13 +258,24 @@ fun ButtonList(createTransaction: () -> Unit) {
         }
 
         if (isDialogVisible) {
-            BuyConfirmationDialog(
-                onConfirm = {
-                    createTransaction.invoke()
-                    isDialogVisible = false
-                },
-                onCancel = { isDialogVisible = false }
-            )
+            if(authUser?.phoneNumber.isNullOrEmpty()) {
+                GoUpdateProfileDialog(
+                    onConfirm = {
+                        isDialogVisible = false
+                        navigateToProfile()
+                    },
+                    onCancel = { isDialogVisible = false }
+                )
+            }
+            else {
+                BuyConfirmationDialog(
+                    onConfirm = {
+                        createTransaction.invoke()
+                        isDialogVisible = false
+                    },
+                    onCancel = { isDialogVisible = false }
+                )
+            }
         }
     }
 }
@@ -289,4 +308,11 @@ fun BuyConfirmationDialog(
             }
         }
     )
+}
+
+private fun openWhatsApp(phoneNumber: String, context: android.content.Context) {
+    val uri = Uri.parse("https://wa.me/$phoneNumber")
+    val intent = Intent(Intent.ACTION_VIEW, uri)
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // Add this line to set the flag
+    context.startActivity(intent)
 }

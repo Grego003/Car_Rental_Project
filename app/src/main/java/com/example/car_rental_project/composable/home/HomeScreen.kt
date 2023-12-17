@@ -127,7 +127,7 @@ fun HomeScreen(
     carList: List<CarModel>,
     navigateToCreateCarPost: () -> Unit,
     navigateToCarPostDetails: (carId: String) -> Unit,
-    navigateToProfile : ()->Unit,
+    navigateToProfile : () ->Unit,
 ) {
     var isDialogVisible by remember { mutableStateOf(false) }
     var filteredCarList by remember { mutableStateOf(carList) }
