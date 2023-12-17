@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -127,7 +128,7 @@ fun TransactionScreen(
                                     .padding(bottom = 8.dp)
                                     .padding(horizontal = 8.dp)
                             ) {
-                                TransactionCard(transaction = transaction)
+                                TransactionCard(transaction = transaction, topBarState)
                                 Button(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -148,7 +149,7 @@ fun TransactionScreen(
                                     .fillMaxWidth()
                                     .padding(8.dp),
                             ) {
-                                TransactionCard(transaction = transaction)
+                                TransactionCard(transaction = transaction, transactionState = topBarState)
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -182,7 +183,7 @@ fun TransactionScreen(
     }
 }
 @Composable
-fun TransactionCard(transaction: TransactionEntity) {
+fun TransactionCard(transaction: TransactionEntity, transactionState : TransactionType) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -218,14 +219,26 @@ fun TransactionCard(transaction: TransactionEntity) {
                     )
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Buyer: ${transaction.buyerName}",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.secondary
+                if(transactionState == TransactionType.BUYER){
+                    Text(
+                        text = "Seller: ${transaction.sellerName}",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
                     )
-                )
+                }
+                else {
+                    Text(
+                        text = "buyer: ${transaction.buyerName}",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Price: Rp ${formatPrice(transaction.carPost?.price)}",

@@ -107,7 +107,6 @@ fun CarPostDetailScreen(
 
 }
 
-
 @Composable
 fun CarDetails(carData: CarModel, createTransaction: () -> Unit, authUser : UserEntity?) {
     LazyColumn {

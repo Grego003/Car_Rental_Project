@@ -28,4 +28,10 @@ data class CarPostState(
     val legalRequirements : Boolean ? = false,
     val isCreatePostSuccessful : Boolean = false,
     val errorMessage : String?= "",
+//    val isTitleValid: Boolean = false,
+//    val isBrandValid: Boolean = false,
+//    val isModelValid: Boolean = false,
+//    val isYearValid : Boolean = false,
+//    val isOdometerValid : Boolean = false,
+//    val
 )

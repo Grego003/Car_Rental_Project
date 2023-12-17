@@ -335,7 +335,7 @@ fun CarCard(car: CarModel, navigateToCarPostDetails: (carId: String?) -> Unit) {
 
                 if (painter.state is AsyncImagePainter.State.Error) {
                     Image(
-                        painter = painterResource(id = R.drawable.profile_placeholder),
+                        painter = painterResource(id = R.drawable.baseline_hide_image_24),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxSize()
@@ -369,8 +369,11 @@ fun CarCard(car: CarModel, navigateToCarPostDetails: (carId: String?) -> Unit) {
 
 
 fun formatPrice(price: Long?): String {
-    val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault())
-    return numberFormat.format(price)
+    if(price != null) {
+        val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault())
+        return numberFormat.format(price)
+    } else
+        return "0"
 }
 
 @Preview(showBackground = true)

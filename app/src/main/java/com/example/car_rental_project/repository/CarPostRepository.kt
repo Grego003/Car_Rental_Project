@@ -98,7 +98,6 @@ class CarPostRepository(
     }
     override suspend fun createCarPost(
         userId : String?,
-        sellerName : String?,
         carModel: CarModel,
         images: List<Uri>,
         contextResolver: ContentResolver,

@@ -113,7 +113,6 @@ class GoogleAuthService(
         }
 
     }
-
     suspend fun signInUserWithEmailAndPassword(email: String?, password: String?) : UserModel {
         if (email != null && password != null) {
             try {
@@ -155,7 +154,6 @@ class GoogleAuthService(
         if (currentUser != null) {
             try {
                 val userSnapshot = userDatabase.child(currentUser.uid).get().await()
-                Log.d("USERSNAPSHOT", userSnapshot.toString())
                 if (userSnapshot.exists()) {
                     return userSnapshot.getValue<UserEntity>()
                 }

@@ -338,6 +338,7 @@ class MainActivity : ComponentActivity() {
                                             title = carPostState.title,
                                             brand = carPostState.brand,
                                             model = carPostState.model,
+                                            sellerName = userData?.username,
                                             condition = carPostState.condition,
                                             phoneNumber = userData?.phoneNumber,
                                             yearBought = carPostState.yearBought.toString(),
@@ -352,7 +353,6 @@ class MainActivity : ComponentActivity() {
                                         )
                                         val createCarPostResult = carRepository.createCarPost(
                                             userId = userData?.userId,
-                                            sellerName = userData?.username,
                                             carModel = carModel,
                                             images = carPostState.images ?: emptyList(),
                                             contextResolver = contentResolver

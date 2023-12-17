@@ -63,10 +63,13 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.core.text.isDigitsOnly
 import com.example.car_rental_project.model.UserEntity
 import com.example.car_rental_project.model.UserModel
 import java.time.LocalDate
@@ -94,7 +97,6 @@ fun CreateCarPostScreen(
     ) {
         item {
             CreateCarPostForm(state = state, carViewModel = carViewModel)
-
             Button(
                 onClick =
                 {
@@ -160,17 +162,20 @@ fun CreateCarPostForm(
 fun TitleTextInput(
     title: String?,
     modifier: Modifier = Modifier,
-    carViewModel: CarViewModel)
-{
+    carViewModel: CarViewModel
+) {
+
     TextField(
         modifier = modifier
-            .fillMaxWidth()
-        ,
+            .fillMaxWidth(),
         value = title.orEmpty(),
-        onValueChange = { newTitle -> carViewModel.onTitleChange(newTitle) },
+        onValueChange = { newTitle ->
+            carViewModel.onTitleChange(newTitle)
+        },
         label = { Text(text = "Title") }
     )
 }
+
 
 @Composable
 fun BrandTextInput(
@@ -180,8 +185,7 @@ fun BrandTextInput(
 {
     TextField(
         modifier = modifier
-            .fillMaxWidth()
-        ,
+            .fillMaxWidth(),
         value = brand.orEmpty(),
         onValueChange = { newBrand -> carViewModel.onBrandChange(newBrand) },
         label = { Text(text = "Brand") }
@@ -341,8 +345,10 @@ fun OdometerNumberInput(
         modifier = modifier
             .fillMaxWidth(),
         value = odometer.orEmpty(),
-        onValueChange = { newOdometer: String? ->
-            carViewModel.onOdometerChange(newOdometer)
+        onValueChange = { newOdometer: String ->
+            if (newOdometer.isDigitsOnly()) {
+                carViewModel.onOdometerChange(newOdometer)
+            }
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         label = { Text(text = "Odometer") },
@@ -495,7 +501,10 @@ fun priceNumberInput(
         modifier = modifier
             .fillMaxWidth(),
         value = price.toString(),
-        onValueChange = { newPrice -> carViewModel.onPriceChange(newPrice) },
+        onValueChange = { newPrice ->
+            if (newPrice.isDigitsOnly()) {
+                carViewModel.onPriceChange(newPrice)
+            }},
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         label = { Text(text = "Price (in Rupiah)") },
     )

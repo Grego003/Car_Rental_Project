@@ -55,9 +55,8 @@ fun UserCarPostScreen(
 ) {
     Column {
         TopAppBar(
-            title = { Text(text = "Transaction") },
+            title = { Text(text = "Your Post") },
         )
-
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxWidth(),
