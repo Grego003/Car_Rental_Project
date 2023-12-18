@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
+import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -115,7 +116,9 @@ fun EditProfileScreen(
             modifier = Modifier
                 .fillMaxWidth(),
             onValueChange = { newPhoneNumber ->
-                profileViewModel.onPhoneNumberChange(newPhoneNumber)
+                if (newPhoneNumber.isDigitsOnly()) {
+                    profileViewModel.onPhoneNumberChange(newPhoneNumber)
+                }
             },
             label = { Text(text = "Phone Number") }
         )

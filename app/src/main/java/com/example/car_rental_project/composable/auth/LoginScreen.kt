@@ -118,7 +118,7 @@ fun LoginHeader(modifier: Modifier = Modifier, onToCreateAccountScreen: () -> Un
 @Composable
 fun LoginHeaderLogo(modifier: Modifier = Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.autohubicon),
+        painter = painterResource(id = R.drawable.carlink),
         contentDescription = stringResource(id = R.string.login_header_logo),
         modifier = modifier
             .size(110.dp)
