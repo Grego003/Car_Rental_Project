@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:16950542463:android:d3fd9080b5e86206ca7f4a",
         "android_client_info": {
-          "package_name": "com.example.car_rental_project"
+          "package_name": "com.car_link.car_rental_project"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "16950542463-1754q50raajlf66k9tt8br2q7u9l7tui.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.car_rental_project",
+            "package_name": "com.car_link.car_rental_project",
             "certificate_hash": "22045a4e0e62f511a0db8ce7f7fad250798ce2d8"
           }
         },
@@ -26,7 +26,7 @@
           "client_id": "16950542463-gvbb4vrjglqjvm0cp4mjs6v2thrb8lab.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.car_rental_project",
+            "package_name": "com.car_link.car_rental_project",
             "certificate_hash": "7745fbf46a3ef889cf1d4491dfe956abd65c920e"
           }
         },
@@ -34,7 +34,7 @@
           "client_id": "16950542463-obdq8lj37vuskocsnspg8v3ed1nnp2li.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.car_rental_project",
+            "package_name": "com.car_link.car_rental_project",
             "certificate_hash": "2d90685536ba25837be4f5620a17bbf2cacecb53"
           }
         },

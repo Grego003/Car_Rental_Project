@@ -7,11 +7,11 @@ plugins {
 
 
 android {
-    namespace = "com.example.car_rental_project"
+    namespace = "com.car_link.car_rental_project"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.car_rental_project"
+        applicationId = "com.car_link.car_rental_project"
         minSdk = 26
         targetSdk = 33
         versionCode = 1
