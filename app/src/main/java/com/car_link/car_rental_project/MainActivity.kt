@@ -497,7 +497,7 @@ class MainActivity : ComponentActivity() {
                                                 Toast.LENGTH_LONG
                                             ).show()
                                             profileViewModel.onUpdateResult(updateResult)
-                                            navController.popBackStack()
+                                            navController.navigate("profile")
                                         }
                                     }
                                 })
