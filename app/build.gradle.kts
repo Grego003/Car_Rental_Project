@@ -4,8 +4,6 @@ plugins {
     id("com.google.gms.google-services")
 }
 
-
-
 android {
     namespace = "com.car_link.car_rental_project"
     compileSdk = 34

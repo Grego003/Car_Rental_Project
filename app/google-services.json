@@ -8,20 +8,49 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:16950542463:android:d3fd9080b5e86206ca7f4a",
+        "mobilesdk_app_id": "1:16950542463:android:997479e72147bb90ca7f4a",
         "android_client_info": {
           "package_name": "com.car_link.car_rental_project"
         }
       },
       "oauth_client": [
         {
-          "client_id": "16950542463-1754q50raajlf66k9tt8br2q7u9l7tui.apps.googleusercontent.com",
+          "client_id": "16950542463-ikh3o31ekh55i4qotki4h4nvifssa96c.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.car_link.car_rental_project",
-            "certificate_hash": "22045a4e0e62f511a0db8ce7f7fad250798ce2d8"
+            "certificate_hash": "833f52d6d70d5a16d2442526396f52ed897a238a"
           }
         },
+        {
+          "client_id": "16950542463-vsu3i34qcbq3b77raoj094la41l79svh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2V0bYp6nd3Z1tAncyeb2jkMPlaq_AoRY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "16950542463-vsu3i34qcbq3b77raoj094la41l79svh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:16950542463:android:d3fd9080b5e86206ca7f4a",
+        "android_client_info": {
+          "package_name": "com.car_link.car_rental_project"
+        }
+      },
+      "oauth_client": [
         {
           "client_id": "16950542463-gvbb4vrjglqjvm0cp4mjs6v2thrb8lab.apps.googleusercontent.com",
           "client_type": 1,

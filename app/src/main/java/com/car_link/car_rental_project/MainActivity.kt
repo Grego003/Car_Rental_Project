@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.setValue
@@ -20,9 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -34,19 +31,13 @@ import com.car_link.car_rental_project.composable.Nav.BottomNavigation
 import com.car_link.car_rental_project.composable.auth.LoginScreen
 import com.car_link.car_rental_project.composable.auth.RegisterScreen
 import com.car_link.car_rental_project.composable.carpost.CarPostDetailScreen
-import com.car_link.car_rental_project.composable.carpost.CreateCarPostScreen
 import com.car_link.car_rental_project.composable.carpost.UserCarPostScreen
-import com.car_link.car_rental_project.composable.extras.LoadingScreen
 import com.car_link.car_rental_project.composable.home.HomeScreen
 import com.car_link.car_rental_project.composable.invoice.InvoiceScreen
 import com.car_link.car_rental_project.composable.profile.EditProfileScreen
 import com.car_link.car_rental_project.composable.profile.ProfileScreen
 import com.car_link.car_rental_project.composable.transaction.TransactionScreen
-import com.car_link.car_rental_project.model.CarCategory
-import com.car_link.car_rental_project.model.CarCondition
 import com.car_link.car_rental_project.model.CarModel
-import com.car_link.car_rental_project.model.EngineCapasity
-import com.car_link.car_rental_project.model.FuelType
 import com.car_link.car_rental_project.model.TransactionEntity
 import com.car_link.car_rental_project.model.TransactionStatus
 import com.car_link.car_rental_project.model.UserEntity
@@ -60,13 +51,10 @@ import com.car_link.car_rental_project.view_model.CarViewModel
 import com.car_link.car_rental_project.view_model.NavViewModel
 import com.car_link.car_rental_project.view_model.ProfileViewModel
 import com.car_link.car_rental_project.view_model.SignInViewModel
+import com.car_link.car_rental_project.composable.carpost.CreateCarPostScreen
 import com.google.android.gms.auth.api.identity.Identity
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.math.BigInteger
-import java.time.Year
 
 class MainActivity : ComponentActivity() {
     private val googleAuthService by lazy {

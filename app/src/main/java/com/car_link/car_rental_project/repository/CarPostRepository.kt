@@ -147,6 +147,5 @@ class CarPostRepository(
         } catch (e: Exception) {
             throw e
         }
-
     }
 }
