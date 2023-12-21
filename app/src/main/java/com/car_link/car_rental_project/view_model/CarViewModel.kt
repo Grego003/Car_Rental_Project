@@ -1,6 +1,7 @@
 package com.car_link.car_rental_project.view_model
 
 import android.net.Uri
+import androidx.compose.runtime.internal.isLiveLiteralsEnabled
 import androidx.lifecycle.ViewModel
 import com.car_link.car_rental_project.model.CarCategory
 import com.car_link.car_rental_project.model.CarCondition
@@ -18,8 +19,20 @@ class CarViewModel() : ViewModel() {
     private val _state = MutableStateFlow(CarPostState())
     val state = _state.asStateFlow()
 
+    fun onCreateLoad() {
+        _state.update { it.copy(
+            isLoading = true
+        ) }
+    }
+    fun OnLoadFinished() {
+        _state.update { it.copy(
+            isLoading = false
+        ) }
+    }
+
     fun onCreateResult(result : CarPostModel) {
         _state.update { it.copy(
+            isLoading = false,
             isCreatePostSuccessful = result.data != null,
             errorMessage = result.errorMessage
         ) }

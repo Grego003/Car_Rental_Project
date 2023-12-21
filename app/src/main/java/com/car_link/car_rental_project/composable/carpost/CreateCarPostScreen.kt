@@ -1,4 +1,4 @@
-package com.car_link.car_rental_project.composable.carpost
+package com.example.car_rental_project.composable.carpost
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -39,8 +39,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import com.car_link.car_rental_project.state.CarPostState
-import com.car_link.car_rental_project.view_model.CarViewModel
+import com.example.car_rental_project.state.CarPostState
+import com.example.car_rental_project.view_model.CarViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,12 +53,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.car_link.car_rental_project.model.CarCategory
-import com.car_link.car_rental_project.model.CarCondition
-import com.car_link.car_rental_project.model.CarModel
-import com.car_link.car_rental_project.model.EngineCapasity
-import com.car_link.car_rental_project.model.FuelType
-import com.car_link.car_rental_project.view_model.NavViewModel
+import com.example.car_rental_project.model.CarCategory
+import com.example.car_rental_project.model.CarCondition
+import com.example.car_rental_project.model.CarModel
+import com.example.car_rental_project.model.EngineCapasity
+import com.example.car_rental_project.model.FuelType
+import com.example.car_rental_project.view_model.NavViewModel
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.LocalTextStyle
@@ -70,8 +70,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
-import com.car_link.car_rental_project.model.UserEntity
-import com.car_link.car_rental_project.model.UserModel
+import com.example.car_rental_project.composable.extras.LoadingScreen
+import com.example.car_rental_project.model.UserEntity
+import com.example.car_rental_project.model.UserModel
 import java.time.LocalDate
 import java.time.Year
 import java.time.format.DateTimeFormatter
@@ -89,6 +90,11 @@ fun CreateCarPostScreen(
         navController.popBackStack()
     }
 
+    Column {
+        if(state.isLoading == true) {
+            LoadingScreen()
+        }
+    }
     LazyColumn(
         modifier = Modifier
             .padding(16.dp),
