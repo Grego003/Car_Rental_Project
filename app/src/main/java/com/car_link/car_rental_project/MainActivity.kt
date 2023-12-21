@@ -479,11 +479,10 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable("editUserProfile") {
-
                             val state by profileViewModel.state.collectAsState()
 
-                            LaunchedEffect(userData, state.isUpdateSuccessful) {
-                                if (userData == null || state.isUpdateSuccessful) {
+                            LaunchedEffect(userData) {
+                                if (userData == null) {
                                     userData = googleAuthService.getSignedInUser()
                                     profileViewModel.resetState()
                                 }
@@ -511,7 +510,7 @@ class MainActivity : ComponentActivity() {
                                                 updateResult.errorMessage,
                                                 Toast.LENGTH_LONG
                                             ).show()
-                                            navController.popBackStack()
+                                            navController.navigate("profile")
                                         } else {
                                             Toast.makeText(
                                                 applicationContext,
