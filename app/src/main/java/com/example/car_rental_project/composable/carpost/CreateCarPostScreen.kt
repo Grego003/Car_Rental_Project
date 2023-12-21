@@ -70,6 +70,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.text.isDigitsOnly
+import com.example.car_rental_project.composable.extras.LoadingScreen
 import com.example.car_rental_project.model.UserEntity
 import com.example.car_rental_project.model.UserModel
 import java.time.LocalDate
@@ -89,6 +90,11 @@ fun CreateCarPostScreen(
         navController.popBackStack()
     }
 
+    Column {
+        if(state.isLoading == true) {
+            LoadingScreen()
+        }
+    }
     LazyColumn(
         modifier = Modifier
             .padding(16.dp),

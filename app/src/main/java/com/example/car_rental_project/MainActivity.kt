@@ -319,11 +319,13 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate("home")
                                     carViewModel.resetState()
                                 } else {
-                                    Toast.makeText(
-                                        applicationContext,
-                                        carPostState.errorMessage,
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                                    if(!carPostState.errorMessage.isNullOrEmpty()) {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            carPostState.errorMessage,
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
                                 }
                             }
 
@@ -333,31 +335,51 @@ class MainActivity : ComponentActivity() {
                                 navViewModel = navViewModel,
                                 navController = navController,
                                 storeToDatabase = {
+                                    carViewModel.onCreateLoad()
                                     lifecycleScope.launch {
-                                        val carModel = CarModel(
-                                            title = carPostState.title,
-                                            brand = carPostState.brand,
-                                            model = carPostState.model,
-                                            sellerName = userData?.username,
-                                            condition = carPostState.condition,
-                                            phoneNumber = userData?.phoneNumber,
-                                            yearBought = carPostState.yearBought.toString(),
-                                            fuelType = carPostState.fuelType,
-                                            odometer = carPostState.odometer?.toInt() ?: 0,
-                                            category = carPostState.category,
-                                            engineCapasity = carPostState.engineCapasity,
-                                            description = carPostState.description,
-                                            price = carPostState.price?.toLong() ?: 0,
-                                            premiumPost = userData?.premium,
-                                            legalRequirements = true
-                                        )
-                                        val createCarPostResult = carRepository.createCarPost(
-                                            userId = userData?.userId,
-                                            carModel = carModel,
-                                            images = carPostState.images ?: emptyList(),
-                                            contextResolver = contentResolver
-                                        )
-                                        carViewModel.onCreateResult(createCarPostResult)
+                                        var requestValidated = true;
+                                        if (carPostState.model.isNullOrEmpty()
+                                            || carPostState.title.isNullOrEmpty()
+                                            || carPostState.brand.isNullOrEmpty()
+                                            || carPostState.description.isNullOrEmpty()
+                                            || carPostState.odometer.toString().isEmpty()
+                                            || carPostState.yearBought.toString().isEmpty()
+                                            || carPostState.price.toString().isEmpty()
+                                        ) {
+                                            requestValidated = false;
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Form Cannot be empty!",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            carViewModel.OnLoadFinished()
+                                        }
+                                        if (requestValidated) {
+                                            val carModel = CarModel(
+                                                title = carPostState.title,
+                                                brand = carPostState.brand,
+                                                model = carPostState.model,
+                                                sellerName = userData?.username,
+                                                condition = carPostState.condition,
+                                                phoneNumber = userData?.phoneNumber,
+                                                yearBought = carPostState.yearBought.toString(),
+                                                fuelType = carPostState.fuelType,
+                                                odometer = carPostState.odometer?.toInt() ?: 0,
+                                                category = carPostState.category,
+                                                engineCapasity = carPostState.engineCapasity,
+                                                description = carPostState.description,
+                                                price = carPostState.price?.toLong() ?: 0,
+                                                premiumPost = userData?.premium,
+                                                legalRequirements = true,
+                                            )
+                                            val createCarPostResult = carRepository.createCarPost(
+                                                userId = userData?.userId,
+                                                carModel = carModel,
+                                                images = carPostState.images ?: emptyList(),
+                                                contextResolver = contentResolver
+                                            )
+                                            carViewModel.onCreateResult(createCarPostResult)
+                                        }
                                     }
                                 }
                             )

@@ -198,7 +198,7 @@ fun HomeScreen(
                 onSearch = {
                 }
             ),
-            textStyle = TextStyle(color = MaterialTheme.colorScheme.background),
+            textStyle = TextStyle(color = MaterialTheme.colorScheme.secondary),
         )
         TabBar(
             selectedTabIndex = selectedTabIndex,
