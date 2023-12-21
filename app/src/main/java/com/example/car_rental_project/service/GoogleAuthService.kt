@@ -44,7 +44,6 @@ class GoogleAuthService(
         }
         return result?.pendingIntent?.intentSender
     }
-
     suspend fun createUserWithEmailAndPassword(email: String?, password: String?, username: String?): UserModel {
         if (email != null && password != null && username != null) {
             try {
