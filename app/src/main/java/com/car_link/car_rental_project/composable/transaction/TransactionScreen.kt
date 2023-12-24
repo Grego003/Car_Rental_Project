@@ -114,6 +114,29 @@ fun TransactionScreen(
                 .background(color = MaterialTheme.colorScheme.background)
         ) {
 
+            if(topBarState == TransactionType.BUYER && buyerTransactionList.isNullOrEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 300.dp),
+                    contentAlignment = Alignment.Center,
+
+                ) {
+                    Text(text = "No buyer transaction found", color = Color.LightGray)
+                }
+            }
+
+            if(topBarState == TransactionType.SELLER && sellerTransactionList.isNullOrEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 300.dp),
+                    contentAlignment = Alignment.Center,
+
+                    ) {
+                    Text(text = "No seller transaction found", color = Color.LightGray)
+                }
+            }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(1),
                 contentPadding = PaddingValues(16.dp),

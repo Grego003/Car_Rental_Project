@@ -336,7 +336,7 @@ fun CarCard(car: CarModel, navigateToCarPostDetails: (carId: String?) -> Unit) {
                 if (painter.state is AsyncImagePainter.State.Error) {
                     Image(
                         painter = painterResource(id = R.drawable.baseline_hide_image_24),
-                        contentDescription = null,
+                        contentDescription = stringResource(id = R.string.car_list_description),
                         modifier = Modifier
                             .fillMaxSize()
                             .background(MaterialTheme.colorScheme.surface)
